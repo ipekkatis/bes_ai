@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BESPortföy AI - Emekliliğinizi Yapay Zeka ile Yönetin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out; }
+        .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .step-line {
+            position: relative;
+        }
+        .step-line::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            width: 2px;
+            height: 40px;
+            background: #e2e8f0;
+            display: none;
+        }
+        @media (min-width: 768px) {
+            .step-line::after { display: block; }
+            .step-line:last-child::after { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 selection:bg-blue-600 selection:text-white">
+    
+    <!-- Navbar -->
+    <nav class="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                        BP
+                    </div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">BESPortföy<span class="gradient-text">AI</span></span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#ozellikler" class="text-slate-600 hover:text-blue-600 font-medium transition">Özellikler</a>
+                    <a href="#nasil-calisir" class="text-slate-600 hover:text-blue-600 font-medium transition">Nasıl Çalışır?</a>
+                    <a href="#seffaflik" class="text-slate-600 hover:text-blue-600 font-medium transition">Şeffaf AI</a>
+                    <a href="#faq" class="text-slate-600 hover:text-blue-600 font-medium transition">SSS</a>
+                </div>
+                <!-- UYGULAMAYI BAŞLAT BUTONU -->
+                <a href="app.html" class="bg-slate-900 text-white px-7 py-3 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-blue-900/10">
+                    Uygulamayı Başlat →
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-40 pb-24 px-4 overflow-hidden bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950">
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <div class="absolute top-20 left-10 w-96 h-96 bg-blue-500 rounded-full filter blur-[120px] animate-float"></div>
+            <div class="absolute bottom-20 right-10 w-[500px] h-[500px] bg-indigo-500 rounded-full filter blur-[120px] animate-float" style="animation-delay: 1.5s;"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="text-white space-y-8 animate-fade-in-up">
+                    <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-5 py-2 rounded-full text-sm font-semibold">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                        <span class="text-blue-200">Gelecek Nesil Finansal Yönetim</span>
+                    </div>
+                    <h1 class="text-6xl lg:text-8xl font-black leading-tight tracking-tighter">
+                        BES'inizi <br/>
+                        <span class="block bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent italic">
+                            AI ile
+                        </span>
+                        Güvenceye Alın
+                    </h1>
+                    <p class="text-xl text-blue-100/80 leading-relaxed max-w-xl">
+                        Rasyonel algoritmalar, %30 devlet katkısı ve akıllı risk yönetimi. 
+                        <span class="text-white font-bold underline decoration-red-500 underline-offset-4">Enflasyonun birikimlerinizi eritmesine izin vermeyin.</span>
+                    </p>
+                    <div class="flex flex-wrap gap-5 pt-4">
+                        <!-- HEMEN BAŞLA BUTONU -->
+                        <a href="app.html" class="group relative inline-flex items-center gap-3 bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-xl hover:bg-blue-50 transition shadow-2xl hover:shadow-blue-500/20">
+                            <span>Hemen Başla</span>
+                            <svg class="w-6 h-6 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                        </a>
+                        <a href="#nasil-calisir" class="inline-flex items-center gap-3 bg-white/5 border border-white/10 text-white px-10 py-5 rounded-2xl font-bold text-xl hover:bg-white/10 transition">
+                            <span>Sistemi İncele</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative hidden lg:block animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <div class="glass p-4 rounded-[2.5rem] shadow-2xl border border-white/10">
+                        <div class="bg-white rounded-[2rem] p-8 shadow-inner overflow-hidden">
+                            <div class="flex justify-between items-end mb-8">
+                                <div>
+                                    <div class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Toplam Portföy</div>
+                                    <div class="text-4xl font-black text-slate-900">₺412.850</div>
+                                </div>
+                                <div class="text-right text-emerald-500 font-black text-lg">+%42.5</div>
+                            </div>
+                            <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-xl mb-6">
+                                <div class="font-black text-lg mb-1">AI Analiz Tamamlandı</div>
+                                <p class="text-sm text-blue-100">Agresif profiliniz için Teknoloji fonu eksikliği tespit edildi.</p>
+                            </div>
+                            <div class="flex gap-3 h-24 items-end justify-between px-2">
+                                <div class="w-full bg-slate-100 rounded-xl" style="height: 40%"></div>
+                                <div class="w-full bg-blue-200 rounded-xl" style="height: 60%"></div>
+                                <div class="w-full bg-blue-400 rounded-xl" style="height: 85%"></div>
+                                <div class="w-full bg-blue-600 rounded-xl" style="height: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 bg-emerald-500 text-white px-6 py-4 rounded-3xl font-black shadow-2xl animate-float">
+                        <div class="text-3xl">%30</div>
+                        <div class="text-[10px] uppercase">Devlet Katkısı</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NASIL ÇALIŞIR SECTION (YENİ EKLENDİ) -->
+    <section id="nasil-calisir" class="py-24 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-black text-slate-900 mb-6 underline decoration-blue-600 decoration-8 underline-offset-8">AI Nasıl Karar Veriyor?</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">BESPortföy AI, "kara kutu" bir sistem değildir. Her önerisi bilimsel finans metriklerine dayanır.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-12 text-center relative">
+                <!-- Step 1 -->
+                <div class="step-line group">
+                    <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-lg border border-blue-100">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2.5"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 mb-4">1. Nakit Kontrolü</h3>
+                    <p class="text-slate-600 leading-relaxed px-4">AI önce kasanızdaki nakiti tarar. Enflasyonun aylık %2 erimesine karşı "Nakit Erozyonu" uyarısı oluşturur.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-line group">
+                    <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-lg border border-indigo-100">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-width="2.5"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 mb-4">2. Yaş & Risk Profilleme</h3>
+                    <p class="text-slate-600 leading-relaxed px-4">Yaşınıza göre Agresif, Dengeli veya Muhafazakar profilinizi belirler. Gençseniz büyüme, emekliyseniz koruma odaklıdır.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-line group">
+                    <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-lg border border-emerald-100">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-width="2.5"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 mb-4">3. Dinamik Skorlama</h3>
+                    <p class="text-slate-600 leading-relaxed px-4">Fonları Getiri, Sharpe Oranı ve Yaş Uyumu kriterlerine göre 100 üzerinden puanlar. En iyi 3 fonu önceliklendirir.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ÖZELLİKLER SECTION -->
+    <section id="ozellikler" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 text-center mb-20">
+            <h2 class="text-4xl font-black text-slate-900 mb-6 underline decoration-indigo-600 decoration-8 underline-offset-8">Akıllı Çözümler</h2>
+            <p class="text-lg text-slate-600">Geleneksel bankacılık uygulamalarından farklı olarak, sadece takip etmiyoruz; yönetiyoruz.</p>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-10">
+            <!-- Akıllı Sepetler -->
+            <div class="feature-card bg-white p-10 rounded-[2.5rem] border border-slate-200">
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mb-8 shadow-xl">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-width="2.5"/></svg>
+                </div>
+                <h3 class="text-2xl font-black text-slate-900 mb-4">Akıllı Sepetler</h3>
+                <p class="text-slate-600 leading-relaxed mb-6">Para yatırdığınızda AI profilinizi tarar ve size özel 3 strateji sunar: Güvenli Liman, Dengeli Büyüme veya Fırsat Odaklı.</p>
+                <a href="app.html" class="text-sm font-bold text-blue-600 hover:underline">Tek tıkla portföy değişimi →</a>
+            </div>
+
+            <!-- Fon Derinliği -->
+            <div class="feature-card bg-white p-10 rounded-[2.5rem] border border-slate-200">
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white mb-8 shadow-xl">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke-width="2.5"/></svg>
+                </div>
+                <h3 class="text-2xl font-black text-slate-900 mb-4">Fon Derinliği</h3>
+                <p class="text-slate-600 leading-relaxed mb-6">Her fonun Sharpe Oranı, Volatilitesi ve Max Drawdown (En büyük düşüş) verilerini görerek bilinçli kararlar alın.</p>
+                <a href="app.html" class="text-sm font-bold text-indigo-600 hover:underline">Riske göre getiri analizi →</a>
+            </div>
+
+            <!-- SHA-256 Güvenlik -->
+            <div class="feature-card bg-white p-10 rounded-[2.5rem] border border-slate-200">
+                <div class="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center text-white mb-8 shadow-xl">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2.5"/></svg>
+                </div>
+                <h3 class="text-2xl font-black text-slate-900 mb-4">SHA-256 Güvenlik</h3>
+                <p class="text-slate-600 leading-relaxed mb-6">Şifreleriniz tarayıcı tarafında hashlenir. Veritabanı sızsa dahi orijinal verilerinize kimse erişemez.</p>
+                <a href="app.html" class="text-sm font-bold text-emerald-600 hover:underline">Sıfır bilgi protokolü →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ŞEFFAFLIK SECTION -->
+    <section id="seffaflik" class="py-24 bg-slate-950 text-white">
+        <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-20 items-center">
+            <div class="relative">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[3rem] blur opacity-30"></div>
+                <div class="relative bg-slate-900 rounded-[3rem] p-12 border border-white/10">
+                    <div class="text-4xl font-black mb-8 leading-tight">Yapay Zeka<br/> Karar Matrizi</div>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl"><span>Getiri Skoru (%50)</span><span class="text-blue-400 font-bold">+45 Puan</span></div>
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl"><span>Yaş/Risk Uyumu (%20)</span><span class="text-emerald-400 font-bold">+20 Puan</span></div>
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl"><span>Sharpe Oranı (%30)</span><span class="text-indigo-400 font-bold">+25 Puan</span></div>
+                        <div class="pt-4 border-t border-white/10 flex justify-between font-black text-2xl"><span>Toplam Skor</span><span>90/100</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-8">
+                <h2 class="text-5xl font-black leading-tight">"Kara Kutu" Değil,<br/><span class="text-blue-500 text-6xl">Matematik.</span></h2>
+                <p class="text-xl text-slate-400 leading-relaxed">
+                    Karar verme algoritması şeffaftır ve her fonun aldığı puanın arkasındaki matematiksel dökümü size kalem kalem sunarız.
+                </p>
+                <ul class="space-y-4 text-lg">
+                    <li class="flex items-center gap-4"><div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">✓</div> Riske Göre Düzeltilmiş Getiri Hesabı</li>
+                    <li class="flex items-center gap-4"><div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">✓</div> Yaş Bazlı Dinamik Profilleme</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="py-24 bg-white px-4">
+        <div class="max-w-4xl mx-auto text-center mb-16">
+            <h2 class="text-4xl font-black mb-4">Sıkça Sorulan Sorular</h2>
+            <div class="w-24 h-2 bg-blue-600 mx-auto rounded-full"></div>
+        </div>
+        <div class="max-w-4xl mx-auto space-y-6">
+            <div class="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
+                <h4 class="text-xl font-bold mb-3 text-slate-900">Yapay zeka önerileri neye göre değişiyor?</h4>
+                <p class="text-slate-600">Öneriler; yaşınızdan kaynaklanan risk toleransınız, portföyünüzdeki kategori eksiklikleri ve fonların Sharpe metriklerine göre saniyeler içinde hesaplanır.</p>
+            </div>
+            <div class="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
+                <h4 class="text-xl font-bold mb-3 text-slate-900">Nakit erozyonu uyarısı nedir?</h4>
+                <p class="text-slate-600">Uygulama, boşta duran nakiti tespit eder ve enflasyon/mevduat farkı üzerinden aylık reel kaybınızı simüle ederek sizi uyarır.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="py-24 px-4 bg-slate-50">
+        <div class="max-w-6xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[3rem] p-16 text-center text-white relative overflow-hidden shadow-2xl">
+            <div class="relative z-10">
+                <h2 class="text-5xl font-black mb-8 leading-tight tracking-tighter">Geleceğinizi Tesadüfe Değil,<br/> Yapay Zekaya Emanet Edin.</h2>
+                <!-- HEMEN ÜCRETSİZ DENE BUTONU -->
+                <a href="app.html" class="inline-block bg-white text-blue-600 px-12 py-5 rounded-2xl font-black text-2xl hover:scale-105 transition shadow-2xl">Hemen Ücretsiz Dene</a>
+            </div>
+            <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+        </div>
+    </section>
+
+    <footer class="py-12 border-t border-slate-200 text-center">
+        <p class="text-slate-400 font-bold text-sm tracking-widest uppercase">© 2025 BESPortföy AI Project • Akıllı Emeklilik Platformu</p>
+    </footer>
+
+</body>
+</html>
