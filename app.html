@@ -99,9 +99,11 @@
 
         // --- SABİTLER ---
         const STATE_CONTRIBUTION_ANNUAL_LIMIT = 240000; 
-        const SIMULATION_GROWTH_RATE = 0.15; // Demo için yıllık %15 büyüme varsayımı
-        const CURRENT_INFLATION = 0.45; // %45 Yıllık Enflasyon Varsayımı
-        const NOMINAL_BES_RETURN = 0.65; // %65 Nominal BES Getirisi (Yıllık)
+        const SIMULATION_GROWTH_RATE = 0.15; 
+        const CURRENT_INFLATION = 0.45; 
+        const NOMINAL_BES_RETURN = 0.65; // Beklenen Senaryo
+        const WORST_CASE_BES_RETURN = 0.25; // Kötü Senaryo (Enflasyonun altında)
+        const BEST_CASE_BES_RETURN = 0.85; // İyi Senaryo
 
         // --- VERİ SETİ ---
         const generateHistory = (base, vol, trend) => {
@@ -243,7 +245,6 @@
             const [regEmail, setRegEmail] = useState('');
             const [regPassword, setRegPassword] = useState('');
             const [regAge, setRegAge] = useState('');
-            // YATIRIM MİKTARI INPUTLARI KALDIRILDI
             const [regCodeInput, setRegCodeInput] = useState('');
             const [generatedCode, setGeneratedCode] = useState(null);
             const [isCodeSent, setIsCodeSent] = useState(false);
@@ -306,7 +307,6 @@
                     return acc + (i.units * f.unitPrice * netMultiplier);
                 }, 0);
 
-                // --- GÜNCELLENMİŞ: OTOMATİK YATIRIM & REBALANCING ---
                 let autoInvestTotalAccumulated = 0;
                 let autoInvestPrincipal = 0;
                 let autoInvestStateCont = 0;
@@ -316,9 +316,8 @@
                 if (autoInvestActive && selectedStrategy && demoYears > 0) {
                     const months = demoYears * 12;
                     const monthlyReturn = Math.pow(1 + NOMINAL_BES_RETURN, 1/12) - 1;
-                    let yearlyStateContTotal = 0; 
                     
-                    // REBALANCING İÇİN SANAL SEPET
+                    let yearlyStateContTotal = 0; 
                     let virtualPortfolio = { 'Teknoloji': 0, 'Hisse': 0, 'Altın': 0, 'Katılım': 0, 'Değişken': 0 };
 
                     for (let month = 1; month <= months; month++) {
@@ -326,14 +325,11 @@
                         const currentAge = user.age + Math.floor((month - 1) / 12);
                         const lifecycle = getLifecycleAllocation(currentAge);
 
-                        // 1. MEVCUT FONLARI BÜYÜT
                         Object.keys(virtualPortfolio).forEach(cat => {
                             virtualPortfolio[cat] *= (1 + monthlyReturn);
                         });
 
-                        // 2. YENİ KATKI EKLE (YAŞA GÖRE DAĞILIM)
                         const monthlyContribution = autoInvestAmount;
-                        // Hangi kategoriye ne kadar?
                         if(lifecycle.equity > 0) {
                              virtualPortfolio['Teknoloji'] += monthlyContribution * (lifecycle.equity / 200);
                              virtualPortfolio['Hisse'] += monthlyContribution * (lifecycle.equity / 200);
@@ -341,10 +337,9 @@
                         if(lifecycle.gold > 0) virtualPortfolio['Altın'] += monthlyContribution * (lifecycle.gold / 100);
                         if(lifecycle.bonds > 0) virtualPortfolio['Katılım'] += monthlyContribution * (lifecycle.bonds / 100);
                         
-                        // 3. YILLIK REBALANCING (HER 12. AYDA BİR)
+                        // SANAL PORTFÖY REBALANCING (Yıllık)
                         if (month % 12 === 0) {
                              const totalVal = Object.values(virtualPortfolio).reduce((a,b)=>a+b, 0);
-                             // Portföyü "silip" yeni oranlarla "baştan yarat" (Sanal Rebalancing)
                              virtualPortfolio['Teknoloji'] = totalVal * (lifecycle.equity / 200);
                              virtualPortfolio['Hisse'] = totalVal * (lifecycle.equity / 200);
                              virtualPortfolio['Altın'] = totalVal * (lifecycle.gold / 100);
@@ -352,7 +347,6 @@
                              virtualPortfolio['Değişken'] = 0; 
                         }
 
-                        // Devlet Katkısı Hesabı
                         const potentialStateCont = monthlyContribution * 0.30;
                         let actualStateCont = 0;
                         if (yearlyStateContTotal + potentialStateCont <= STATE_CONTRIBUTION_ANNUAL_LIMIT) {
@@ -362,14 +356,12 @@
                             actualStateCont = Math.max(0, STATE_CONTRIBUTION_ANNUAL_LIMIT - yearlyStateContTotal);
                             yearlyStateContTotal += actualStateCont;
                         }
-                        // Devlet katkısı ayrı bir sanal hesapta büyüsün
                         autoInvestStateCont = (autoInvestStateCont + actualStateCont) * (1 + monthlyReturn); 
                         autoInvestPrincipal += monthlyContribution;
                     }
                     
-                    // Son durumu breakdown'a aktar
                     Object.entries(virtualPortfolio).forEach(([cat, val]) => {
-                         if (val > 10) { // Küçük küsuratları gösterme
+                         if (val > 10) { 
                              autoInvestBreakdown.push({
                                  code: 'AUTO',
                                  category: cat,
@@ -383,13 +375,12 @@
 
                 const totalPrincipal = user.totalDeposited + autoInvestPrincipal;
                 const grownManuelState = user.stateContribution * Math.pow(1 + NOMINAL_BES_RETURN, demoYears);
-                // Toplam Devlet Katkısı (Manuel Büyüyen + Otomatik Büyüyen)
                 const totalStateBalance = grownManuelState + autoInvestStateCont; 
 
                 const simulatedCash = user.cash * Math.pow(1.05, demoYears); 
                 const totalValue = portVal + autoInvestTotalAccumulated + simulatedCash + totalStateBalance;
                 
-                const profit = Math.max(0, totalValue - totalPrincipal - (user.stateContribution + (autoInvestPrincipal * 0.30))); 
+                const profit = Math.max(0, (portVal + autoInvestTotalAccumulated + simulatedCash) - totalPrincipal);
                 
                 let taxRate = 0.15; 
                 if (yearsInBES >= 10) taxRate = 0.10;
@@ -408,66 +399,6 @@
                     autoInvestBreakdown 
                 };
             }, [user, category, demoYears, autoInvestActive, selectedStrategy, autoInvestAmount]);
-
-            // --- YENİ REBALANCING FONKSİYONU ---
-            const rebalancePortfolio = async () => {
-                 if(!window.confirm("Mevcut fonlarınız satılacak ve yaşınıza uygun strateji ile yeniden dağıtılacaktır. Onaylıyor musunuz?")) return;
-
-                const currentAge = user.age + demoYears;
-                const lifecycle = getLifecycleAllocation(currentAge);
-                
-                // 1. Toplam Varlığı Hesapla (Nakit + Fonlar)
-                let totalLiquidCash = user.cash;
-                user.portfolio.forEach(item => {
-                     const f = BES_FUNDS.find(x => x.code === item.code);
-                     totalLiquidCash += (item.units * f.unitPrice);
-                });
-
-                // 2. Yeni Dağılımı Uygula
-                const newPortfolio = [];
-                let remainingCash = totalLiquidCash;
-
-                // Hedef dağılımları uygula
-                if (lifecycle.equity > 0) {
-                    const fund = BES_FUNDS.find(f => f.category === 'Teknoloji' || f.category === 'Hisse');
-                    const amt = totalLiquidCash * (lifecycle.equity / 100);
-                    if (fund) {
-                        const units = amt / fund.unitPrice;
-                        newPortfolio.push({ code: fund.code, units, totalInvested: amt, category: fund.category });
-                        remainingCash -= amt;
-                    }
-                }
-                if (lifecycle.gold > 0) {
-                    const fund = BES_FUNDS.find(f => f.category === 'Altın');
-                    const amt = totalLiquidCash * (lifecycle.gold / 100);
-                    if (fund) {
-                        const units = amt / fund.unitPrice;
-                        newPortfolio.push({ code: fund.code, units, totalInvested: amt, category: fund.category });
-                        remainingCash -= amt;
-                    }
-                }
-                if (lifecycle.bonds > 0) {
-                    const fund = BES_FUNDS.find(f => f.category === 'Katılım' || f.category === 'Değişken');
-                    const amt = totalLiquidCash * (lifecycle.bonds / 100);
-                    if (fund) {
-                        const units = amt / fund.unitPrice;
-                        newPortfolio.push({ code: fund.code, units, totalInvested: amt, category: fund.category });
-                        remainingCash -= amt;
-                    }
-                }
-
-                // 3. Kullanıcıyı Güncelle
-                const updatedUser = {
-                    ...user,
-                    portfolio: newPortfolio,
-                    cash: remainingCash, // Küsurat
-                    fundSwitches: user.fundSwitches + 1 
-                };
-                
-                await db.saveUser(user.email, updatedUser);
-                setUser(updatedUser);
-                showToast(`✅ Portföyünüz "${lifecycle.label}" stratejisine göre dengelendi.`);
-            };
 
             // --- İŞLEMLER ---
             const executeDeposit = async () => {
@@ -666,6 +597,7 @@
                 return { cashValue: realCashValue, savedAmount, savedPercent, monthlyLoss };
             }, [user]);
 
+            // --- YENİ REBALANCING VE VERGİ UYARILARI ---
             const recommendations = useMemo(() => {
                 if (!user) return [];
                 const recs = [];
