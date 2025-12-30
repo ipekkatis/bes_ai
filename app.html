@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BESPortföy AI - Şeffaf ve Akıllı Emeklilik</title>
+    <title>BESPortföy AI - Profesyonel Emeklilik Yönetimi</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- React & ReactDOM -->
+    <!-- React & ReactDOM (Versiyon Sabitlendi: 18.2.0) -->
     <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
     
-    <!-- Bağımlılıklar -->
+    <!-- Prop-types -->
     <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    
+    <!-- React Is -->
     <script src="https://unpkg.com/react-is@18.2.0/umd/react-is.development.js"></script>
+    
+    <!-- Recharts -->
     <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
+    
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <!-- Font -->
@@ -26,7 +32,6 @@
         .recharts-wrapper { width: 100% !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* Animasyonlar */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
         .bg-pattern { background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; }
@@ -42,7 +47,7 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDkoPGu4kgieTtCg9Jst-hISZNiAoBM0kI",
+            apiKey: "", 
             authDomain: "bes-website-3767a.firebaseapp.com",
             projectId: "bes-website-3767a",
             storageBucket: "bes-website-3767a.firebasestorage.app",
@@ -57,13 +62,14 @@
 
         window.firebaseDB = db;
         window.firestoreMethods = { doc, setDoc, getDoc, updateDoc };
+        window.firebaseConfig = firebaseConfig;
     </script>
 
     <!-- REACT UYGULAMASI -->
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
         const RechartsObj = window.Recharts || {};
-        const { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } = RechartsObj;
+        const { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Legend } = RechartsObj;
 
         // --- İKONLAR ---
         const Icon = ({ path, color = "currentColor", size = 24, className = "" }) => (
@@ -81,46 +87,132 @@
             AlertCircle: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></>} />,
             CheckCircle: (p) => <Icon {...p} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />,
             Shield: (p) => <Icon {...p} path={<><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></>} />,
-            Brain: (p) => <Icon {...p} path={<><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></>} />
+            Brain: (p) => <Icon {...p} path={<><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></>} />,
+            Lock: (p) => <Icon {...p} path={<><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />,
+            Key: (p) => <Icon {...p} path={<><path d="m21 16-2 2a2.38 2.38 0 1 1-3.3-3.3l8.5-8.5A2.12 2.12 0 0 1 20 6V4a2 2 0 0 0-2-2h-2a4 4 0 0 0-4 4v3l-5 5"/><path d="m4 20 5-5"/></>} />,
+            Mail: (p) => <Icon {...p} path={<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>} />,
+            ArrowLeft: (p) => <Icon {...p} path={<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>} />,
+            Clock: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>} />,
+            Refresh: (p) => <Icon {...p} path={<><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>} />,
+            Info: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></>} />
         };
 
-        // --- GELİŞTİRİLMİŞ VERİ SETİ ---
-        const generateHistory = (basePrice, volatility, trend) => {
-            let price = basePrice * 0.6;
-            const data = [];
-            for (let i = 0; i < 60; i++) {
-                const change = (Math.random() - 0.5) * volatility + trend;
-                price = price * (1 + change);
-                data.push({ month: i, value: price });
-            }
-            return data;
-        };
+        // --- SABİTLER ---
+        const STATE_CONTRIBUTION_ANNUAL_LIMIT = 240000; 
+        const SIMULATION_GROWTH_RATE = 0.15; // Demo için yıllık %15 büyüme varsayımı
+        const CURRENT_INFLATION = 0.45; // %45 Yıllık Enflasyon Varsayımı
+        const NOMINAL_BES_RETURN = 0.65; // %65 Nominal BES Getirisi (Yıllık)
 
+        // --- VERİ SETİ ---
+        const generateHistory = (base, vol, trend) => {
+            let p = base * 0.6; const d = [];
+            for (let i=0; i<60; i++) { p = p*(1 + (Math.random()-0.5)*vol + trend); d.push({month: i, value: p}); }
+            return d;
+        };
         const BES_FUNDS = [
-            { code: 'AGY', name: 'Aegon Altın BYF', unitPrice: 1.5234, return1Y: 58.3, category: 'Altın', riskLevel: 3, volatility: 'Düşük', sharpe: 1.2, drawdown: '-8%', manager: 'Ahmet Yılmaz', fee: '1.1%', history: generateHistory(1.5, 0.03, 0.015) },
-            { code: 'AEE', name: 'AgeSA Altın BYF', unitPrice: 1.4872, return1Y: 57.8, category: 'Altın', riskLevel: 3, volatility: 'Düşük', sharpe: 1.15, drawdown: '-9%', manager: 'Ayşe Demir', fee: '1.2%', history: generateHistory(1.4, 0.03, 0.014) },
-            { code: 'HGS', name: 'Halk Gümüş BYF', unitPrice: 0.9865, return1Y: 44.5, category: 'Gümüş', riskLevel: 4, volatility: 'Orta', sharpe: 0.9, drawdown: '-15%', manager: 'Mehmet Öz', fee: '1.5%', history: generateHistory(0.9, 0.05, 0.012) },
-            { code: 'AET', name: 'AgeSA Teknoloji BYF', unitPrice: 2.7891, return1Y: 82.1, category: 'Teknoloji', riskLevel: 5, volatility: 'Yüksek', sharpe: 1.8, drawdown: '-22%', manager: 'Canan Tekin', fee: '2.0%', history: generateHistory(2.7, 0.08, 0.02) },
-            { code: 'KTE', name: 'Katılım Teknoloji BYF', unitPrice: 2.6543, return1Y: 79.5, category: 'Teknoloji', riskLevel: 5, volatility: 'Yüksek', sharpe: 1.7, drawdown: '-20%', manager: 'Burak Can', fee: '1.9%', history: generateHistory(2.6, 0.07, 0.019) },
-            { code: 'AHS', name: 'Anadolu Hisse BYF', unitPrice: 3.1234, return1Y: 92.8, category: 'Hisse', riskLevel: 5, volatility: 'Çok Yüksek', sharpe: 1.9, drawdown: '-25%', manager: 'Elif Kaya', fee: '2.2%', history: generateHistory(3.1, 0.09, 0.022) },
-            { code: 'KKT', name: 'Katılım Katkı BYF', unitPrice: 1.4567, return1Y: 32.3, category: 'Katılım', riskLevel: 2, volatility: 'Çok Düşük', sharpe: 0.8, drawdown: '-4%', manager: 'Selim Ak', fee: '0.8%', history: generateHistory(1.4, 0.01, 0.008) },
-            { code: 'OKS', name: 'Otomatik Katılım Dengeli', unitPrice: 1.1234, return1Y: 45.2, category: 'Değişken', riskLevel: 3, volatility: 'Orta', sharpe: 1.3, drawdown: '-10%', manager: 'Zeynep Su', fee: '1.0%', history: generateHistory(1.1, 0.04, 0.01) },
+            { code: 'AGY', name: 'Aegon Altın BYF', unitPrice: 1.5234, return1Y: 68.3, category: 'Altın', riskLevel: 3, volatility: 'Düşük', sharpe: 1.2, fee: '1.1%', history: generateHistory(1.5, 0.03, 0.015) },
+            { code: 'AEE', name: 'AgeSA Altın BYF', unitPrice: 1.4872, return1Y: 67.8, category: 'Altın', riskLevel: 3, volatility: 'Düşük', sharpe: 1.15, fee: '1.2%', history: generateHistory(1.4, 0.03, 0.014) },
+            { code: 'HGS', name: 'Halk Gümüş BYF', unitPrice: 0.9865, return1Y: 55.5, category: 'Gümüş', riskLevel: 4, volatility: 'Orta', sharpe: 0.9, fee: '1.5%', history: generateHistory(0.9, 0.05, 0.012) },
+            { code: 'AET', name: 'AgeSA Teknoloji BYF', unitPrice: 2.7891, return1Y: 92.1, category: 'Teknoloji', riskLevel: 5, volatility: 'Yüksek', sharpe: 1.8, fee: '2.0%', history: generateHistory(2.7, 0.08, 0.02) },
+            { code: 'KTE', name: 'Katılım Teknoloji BYF', unitPrice: 2.6543, return1Y: 89.5, category: 'Teknoloji', riskLevel: 5, volatility: 'Yüksek', sharpe: 1.7, fee: '1.9%', history: generateHistory(2.6, 0.07, 0.019) },
+            { code: 'AHS', name: 'Anadolu Hisse BYF', unitPrice: 3.1234, return1Y: 102.8, category: 'Hisse', riskLevel: 5, volatility: 'Çok Yüksek', sharpe: 1.9, fee: '2.2%', history: generateHistory(3.1, 0.09, 0.022) },
+            { code: 'KKT', name: 'Katılım Katkı BYF', unitPrice: 1.4567, return1Y: 42.3, category: 'Katılım', riskLevel: 2, volatility: 'Çok Düşük', sharpe: 0.8, fee: '0.8%', history: generateHistory(1.4, 0.01, 0.008) },
+            { code: 'OKS', name: 'Otomatik Katılım Dengeli', unitPrice: 1.1234, return1Y: 55.2, category: 'Değişken', riskLevel: 3, volatility: 'Orta', sharpe: 1.3, fee: '1.0%', history: generateHistory(1.1, 0.04, 0.01) },
         ];
         const COLORS = { 'Altın': '#eab308', 'Gümüş': '#94a3b8', 'Teknoloji': '#3b82f6', 'Hisse': '#ef4444', 'Katılım': '#10b981', 'Değişken': '#8b5cf6' };
 
+        // --- GLOBAL HELPER FUNCTIONS ---
+        const getSmartBaskets = (amount) => {
+            return [
+                { id: 'safe', name: 'Güvenli Liman', risk: 'Düşük', desc: 'Enflasyona karşı korur.', allocation: { 'Altın': 60, 'Katılım': 40 }, expectedReturn: '35-45%', scenario: { best: amount * 1.45, normal: amount * 1.30, worst: amount * 1.15 } },
+                { id: 'balanced', name: 'Dengeli Büyüme', risk: 'Orta', desc: 'Hem koruma hem büyüme.', allocation: { 'Değişken': 40, 'Altın': 30, 'Teknoloji': 30 }, expectedReturn: '50-70%', scenario: { best: amount * 1.70, normal: amount * 1.50, worst: amount * 1.20 } },
+                { id: 'growth', name: 'Fırsat Odaklı', risk: 'Yüksek', desc: 'Maksimum getiri.', allocation: { 'Hisse': 50, 'Teknoloji': 50 }, expectedReturn: '80-120%', scenario: { best: amount * 2.20, normal: amount * 1.80, worst: amount * 0.90 } }
+            ];
+        };
+
+        const getLifecycleAllocation = (age) => {
+            const yearsToRetirement = 56 - age;
+            if (yearsToRetirement > 20) return { equity: 70, gold: 20, bonds: 10, label: 'Büyüme Odaklı' };
+            if (yearsToRetirement > 10) return { equity: 50, gold: 30, bonds: 20, label: 'Dengeli Geçiş' };
+            return { equity: 20, gold: 40, bonds: 40, label: 'Koruma Odaklı' };
+        };
+
+        const getRiskProfile = (age) => {
+            if (age <= 30) return { level: 'aggressive', equity: 70, label: 'Yüksek Risk (Agresif)', desc: 'Genç yaşınız avantajınız.' };
+            if (age <= 45) return { level: 'moderate', equity: 50, label: 'Dengeli', desc: 'Birikimlerinizi büyütürken riski dengeleyin.' };
+            return { level: 'conservative', equity: 20, label: 'Düşük Risk (Muhafazakar)', desc: 'Emekliliğe yaklaşırken anaparayı koruyun.' };
+        };
+
+        const calculateAIScore = (fund, age) => {
+            let score = 50; score += (fund.return1Y / 2); if (age < 35 && fund.riskLevel >= 4) score += 20; if (age > 50 && fund.riskLevel <= 2) score += 20; score += (fund.sharpe * 5); return Math.min(100, Math.round(score));
+        };
+
+        const calculateEquityPercent = (portfolio) => {
+            let total = 0;
+            let equity = 0;
+            portfolio.forEach(item => {
+                const f = BES_FUNDS.find(x => x.code === item.code);
+                if (f) {
+                    const val = item.units * f.unitPrice;
+                    total += val;
+                    if (f.category === 'Hisse' || f.category === 'Teknoloji') equity += val;
+                }
+            });
+            return total > 0 ? (equity / total) * 100 : 0;
+        };
+
+        const findTopPerformingFund = (portfolio) => {
+            if (!portfolio || portfolio.length === 0) return null;
+            let top = null;
+            let maxReturn = -Infinity;
+            portfolio.forEach(item => {
+                const f = BES_FUNDS.find(x => x.code === item.code);
+                const ret = parseFloat(f.return1Y);
+                if (f && ret > maxReturn) {
+                    maxReturn = ret;
+                    top = { ...f, gain: ret };
+                }
+            });
+            return top;
+        };
+
+        const findWorstPerformingFund = (portfolio) => {
+             if (!portfolio || portfolio.length === 0) return null;
+             let worst = null;
+             let minReturn = Infinity;
+            portfolio.forEach(item => {
+                const f = BES_FUNDS.find(x => x.code === item.code);
+                const ret = parseFloat(f.return1Y);
+                if (f && ret < minReturn) {
+                    minReturn = ret;
+                    worst = { ...f, gain: ret };
+                }
+            });
+            return worst;
+        };
+
+        const findBetterAlternative = (fund) => {
+            const categoryFunds = BES_FUNDS.filter(f => f.category === fund.category && f.code !== fund.code);
+            return categoryFunds.sort((a,b) => b.return1Y - a.return1Y)[0] || BES_FUNDS[0];
+        };
+
         // --- DATABASE SERVICE ---
         class DataService {
-            constructor() { this.db = window.firebaseDB; }
+            constructor() {
+                this.db = window.firebaseDB;
+                const config = window.firebaseConfig || {};
+                this.useFirebase = config.apiKey && config.apiKey.length > 0;
+            }
             async saveUser(email, userData) {
-                if (this.db) {
+                if (this.useFirebase && this.db) {
                     try { const { doc, setDoc } = window.firestoreMethods; await setDoc(doc(this.db, "users", email), userData); return true; } 
-                    catch (e) { console.error(e); return false; }
+                    catch (e) { return false; }
                 } else {
                     const users = JSON.parse(localStorage.getItem('besUsers') || '{}'); users[email] = userData; localStorage.setItem('besUsers', JSON.stringify(users)); return true;
                 }
             }
             async getUser(email) {
-                if (this.db) {
+                if (this.useFirebase && this.db) {
                     try { const { doc, getDoc } = window.firestoreMethods; const s = await getDoc(doc(this.db, "users", email)); return s.exists() ? s.data() : null; }
                     catch (e) { return null; }
                 } else { const users = JSON.parse(localStorage.getItem('besUsers') || '{}'); return users[email] || null; }
@@ -129,7 +221,6 @@
         const db = new DataService();
         async function hashPassword(p) { const e = new TextEncoder(); const d = e.encode(p); const h = await crypto.subtle.digest('SHA-256', d); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
 
-        // --- YARDIMCI KOMPONENTLER ---
         const RiskBadge = ({ level }) => {
             const colors = { 1: 'bg-green-100 text-green-700', 2: 'bg-green-100 text-green-700', 3: 'bg-yellow-100 text-yellow-700', 4: 'bg-orange-100 text-orange-700', 5: 'bg-red-100 text-red-700' };
             return <span className={`px-2 py-1 rounded text-xs font-bold ${colors[level] || 'bg-gray-100'}`}>Risk: {level}/5</span>;
@@ -145,13 +236,14 @@
             const [toast, setToast] = useState(null);
             const [category, setCategory] = useState('Tümü');
             
-            // Auth States
+            // Auth & Onboarding States
             const [loginEmail, setLoginEmail] = useState('');
             const [loginPassword, setLoginPassword] = useState('');
             const [regName, setRegName] = useState('');
             const [regEmail, setRegEmail] = useState('');
             const [regPassword, setRegPassword] = useState('');
             const [regAge, setRegAge] = useState('');
+            // YATIRIM MİKTARI INPUTLARI KALDIRILDI
             const [regCodeInput, setRegCodeInput] = useState('');
             const [generatedCode, setGeneratedCode] = useState(null);
             const [isCodeSent, setIsCodeSent] = useState(false);
@@ -162,6 +254,13 @@
             const [depositAmount, setDepositAmount] = useState('');
             const [simYears, setSimYears] = useState(10);
             const [simMonthly, setSimMonthly] = useState(2000);
+            const [showRealReturn, setShowRealReturn] = useState(false); 
+            
+            // DEMO
+            const [demoYears, setDemoYears] = useState(0);
+            const [autoInvestActive, setAutoInvestActive] = useState(false);
+            const [autoInvestAmount, setAutoInvestAmount] = useState(2000); 
+            const [selectedStrategy, setSelectedStrategy] = useState(null); 
 
             useEffect(() => { const u = localStorage.getItem('lastBESUser'); if (u) loadUser(u); }, []);
 
@@ -169,9 +268,16 @@
                 const u = await db.getUser(email);
                 if (u) {
                     const y = new Date().getFullYear();
-                    // Joined date yoksa ekle (eski veriler için)
                     if (!u.joinedDate) { u.joinedDate = new Date().toISOString(); await db.saveUser(email, u); }
+                    if (!u.annualContributions) { u.annualContributions = {}; await db.saveUser(email, u); }
                     if (u.lastCheckYear !== y) { u.fundSwitches = 0; u.lastCheckYear = y; await db.saveUser(email, u); }
+                    
+                    if (u.targetMonthly) {
+                        setSimMonthly(parseInt(u.targetMonthly));
+                        setAutoInvestAmount(parseInt(u.targetMonthly)); 
+                    }
+                    if (u.targetDuration) setSimYears(parseInt(u.targetDuration));
+
                     setUser(u); setScreen('app');
                 }
             };
@@ -179,51 +285,245 @@
             const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
             const formatMoney = (a) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(a);
 
-            const getRiskProfile = (age) => {
-                if (age <= 30) return { level: 'aggressive', equity: 70, label: 'Yüksek Risk (Agresif)', desc: 'Genç yaşınız avantajınız. Yüksek getiri potansiyelli fonlara odaklanın.' };
-                if (age <= 45) return { level: 'moderate', equity: 50, label: 'Dengeli', desc: 'Birikimlerinizi büyütürken riski dengeleyin.' };
-                return { level: 'conservative', equity: 20, label: 'Düşük Risk (Muhafazakar)', desc: 'Emekliliğe yaklaşırken anaparayı korumaya odaklanın.' };
+            // --- HAKEDİŞ HESAPLAMA (DÜZELTİLMİŞ) ---
+            const calculateVestedAmount = useMemo(() => {
+                if (!user) return null;
+                const realYears = (Date.now() - new Date(user.joinedDate)) / (365*24*60*60*1000);
+                const yearsInBES = realYears + demoYears;
+                
+                let vestingRate = 0;
+                if (yearsInBES < 3) vestingRate = 0;
+                else if (yearsInBES < 6) vestingRate = 0.15;
+                else if (yearsInBES < 10) vestingRate = 0.35;
+                else if ((user.age + demoYears) < 56) vestingRate = 0.60;
+                else vestingRate = 1.0;
+
+                let portVal = user.portfolio.reduce((acc, i) => {
+                    const f = BES_FUNDS.find(x => x.code === i.code);
+                    const simulatedGain = Math.pow(1.15, demoYears); 
+                    const feeRate = parseFloat(f.fee) / 100;
+                    const netMultiplier = Math.pow(1.15 * (1 - feeRate), demoYears);
+                    return acc + (i.units * f.unitPrice * netMultiplier);
+                }, 0);
+
+                // --- GÜNCELLENMİŞ: OTOMATİK YATIRIM & REBALANCING ---
+                let autoInvestTotalAccumulated = 0;
+                let autoInvestPrincipal = 0;
+                let autoInvestStateCont = 0;
+                let autoInvestBreakdown = [];
+                let aggregatedAutoFunds = {};
+
+                if (autoInvestActive && selectedStrategy && demoYears > 0) {
+                    const months = demoYears * 12;
+                    const monthlyReturn = Math.pow(1 + NOMINAL_BES_RETURN, 1/12) - 1;
+                    let yearlyStateContTotal = 0; 
+                    
+                    // REBALANCING İÇİN SANAL SEPET
+                    let virtualPortfolio = { 'Teknoloji': 0, 'Hisse': 0, 'Altın': 0, 'Katılım': 0, 'Değişken': 0 };
+
+                    for (let month = 1; month <= months; month++) {
+                        if (month % 12 === 0) yearlyStateContTotal = 0;
+                        const currentAge = user.age + Math.floor((month - 1) / 12);
+                        const lifecycle = getLifecycleAllocation(currentAge);
+
+                        // 1. MEVCUT FONLARI BÜYÜT
+                        Object.keys(virtualPortfolio).forEach(cat => {
+                            virtualPortfolio[cat] *= (1 + monthlyReturn);
+                        });
+
+                        // 2. YENİ KATKI EKLE (YAŞA GÖRE DAĞILIM)
+                        const monthlyContribution = autoInvestAmount;
+                        // Hangi kategoriye ne kadar?
+                        if(lifecycle.equity > 0) {
+                             virtualPortfolio['Teknoloji'] += monthlyContribution * (lifecycle.equity / 200);
+                             virtualPortfolio['Hisse'] += monthlyContribution * (lifecycle.equity / 200);
+                        }
+                        if(lifecycle.gold > 0) virtualPortfolio['Altın'] += monthlyContribution * (lifecycle.gold / 100);
+                        if(lifecycle.bonds > 0) virtualPortfolio['Katılım'] += monthlyContribution * (lifecycle.bonds / 100);
+                        
+                        // 3. YILLIK REBALANCING (HER 12. AYDA BİR)
+                        if (month % 12 === 0) {
+                             const totalVal = Object.values(virtualPortfolio).reduce((a,b)=>a+b, 0);
+                             // Portföyü "silip" yeni oranlarla "baştan yarat" (Sanal Rebalancing)
+                             virtualPortfolio['Teknoloji'] = totalVal * (lifecycle.equity / 200);
+                             virtualPortfolio['Hisse'] = totalVal * (lifecycle.equity / 200);
+                             virtualPortfolio['Altın'] = totalVal * (lifecycle.gold / 100);
+                             virtualPortfolio['Katılım'] = totalVal * (lifecycle.bonds / 100);
+                             virtualPortfolio['Değişken'] = 0; 
+                        }
+
+                        // Devlet Katkısı Hesabı
+                        const potentialStateCont = monthlyContribution * 0.30;
+                        let actualStateCont = 0;
+                        if (yearlyStateContTotal + potentialStateCont <= STATE_CONTRIBUTION_ANNUAL_LIMIT) {
+                            actualStateCont = potentialStateCont;
+                            yearlyStateContTotal += actualStateCont;
+                        } else {
+                            actualStateCont = Math.max(0, STATE_CONTRIBUTION_ANNUAL_LIMIT - yearlyStateContTotal);
+                            yearlyStateContTotal += actualStateCont;
+                        }
+                        // Devlet katkısı ayrı bir sanal hesapta büyüsün
+                        autoInvestStateCont = (autoInvestStateCont + actualStateCont) * (1 + monthlyReturn); 
+                        autoInvestPrincipal += monthlyContribution;
+                    }
+                    
+                    // Son durumu breakdown'a aktar
+                    Object.entries(virtualPortfolio).forEach(([cat, val]) => {
+                         if (val > 10) { // Küçük küsuratları gösterme
+                             autoInvestBreakdown.push({
+                                 code: 'AUTO',
+                                 category: cat,
+                                 name: `${cat} Fonu (Otomatik)`,
+                                 value: val
+                             });
+                             autoInvestTotalAccumulated += val;
+                         }
+                    });
+                }
+
+                const totalPrincipal = user.totalDeposited + autoInvestPrincipal;
+                const grownManuelState = user.stateContribution * Math.pow(1 + NOMINAL_BES_RETURN, demoYears);
+                // Toplam Devlet Katkısı (Manuel Büyüyen + Otomatik Büyüyen)
+                const totalStateBalance = grownManuelState + autoInvestStateCont; 
+
+                const simulatedCash = user.cash * Math.pow(1.05, demoYears); 
+                const totalValue = portVal + autoInvestTotalAccumulated + simulatedCash + totalStateBalance;
+                
+                const profit = Math.max(0, totalValue - totalPrincipal - (user.stateContribution + (autoInvestPrincipal * 0.30))); 
+                
+                let taxRate = 0.15; 
+                if (yearsInBES >= 10) taxRate = 0.10;
+                if (yearsInBES >= 10 && (user.age + demoYears) >= 56) taxRate = 0.05;
+                const tax = profit * taxRate;
+
+                const vestedStateContVal = totalStateBalance * vestingRate;
+                const unvested = totalStateBalance - vestedStateContVal;
+                const netIfWithdrawNow = totalValue - tax - unvested;
+                const totalStateContributionPrincipal = user.stateContribution + (autoInvestPrincipal * 0.30); 
+
+                return { 
+                    yearsInBES, vestingRate, totalValue, netIfWithdrawNow, tax, 
+                    principal: totalPrincipal, profit, vestedStateCont: vestedStateContVal,
+                    totalStateContribution: totalStateContributionPrincipal,
+                    autoInvestBreakdown 
+                };
+            }, [user, category, demoYears, autoInvestActive, selectedStrategy, autoInvestAmount]);
+
+            // --- YENİ REBALANCING FONKSİYONU ---
+            const rebalancePortfolio = async () => {
+                 if(!window.confirm("Mevcut fonlarınız satılacak ve yaşınıza uygun strateji ile yeniden dağıtılacaktır. Onaylıyor musunuz?")) return;
+
+                const currentAge = user.age + demoYears;
+                const lifecycle = getLifecycleAllocation(currentAge);
+                
+                // 1. Toplam Varlığı Hesapla (Nakit + Fonlar)
+                let totalLiquidCash = user.cash;
+                user.portfolio.forEach(item => {
+                     const f = BES_FUNDS.find(x => x.code === item.code);
+                     totalLiquidCash += (item.units * f.unitPrice);
+                });
+
+                // 2. Yeni Dağılımı Uygula
+                const newPortfolio = [];
+                let remainingCash = totalLiquidCash;
+
+                // Hedef dağılımları uygula
+                if (lifecycle.equity > 0) {
+                    const fund = BES_FUNDS.find(f => f.category === 'Teknoloji' || f.category === 'Hisse');
+                    const amt = totalLiquidCash * (lifecycle.equity / 100);
+                    if (fund) {
+                        const units = amt / fund.unitPrice;
+                        newPortfolio.push({ code: fund.code, units, totalInvested: amt, category: fund.category });
+                        remainingCash -= amt;
+                    }
+                }
+                if (lifecycle.gold > 0) {
+                    const fund = BES_FUNDS.find(f => f.category === 'Altın');
+                    const amt = totalLiquidCash * (lifecycle.gold / 100);
+                    if (fund) {
+                        const units = amt / fund.unitPrice;
+                        newPortfolio.push({ code: fund.code, units, totalInvested: amt, category: fund.category });
+                        remainingCash -= amt;
+                    }
+                }
+                if (lifecycle.bonds > 0) {
+                    const fund = BES_FUNDS.find(f => f.category === 'Katılım' || f.category === 'Değişken');
+                    const amt = totalLiquidCash * (lifecycle.bonds / 100);
+                    if (fund) {
+                        const units = amt / fund.unitPrice;
+                        newPortfolio.push({ code: fund.code, units, totalInvested: amt, category: fund.category });
+                        remainingCash -= amt;
+                    }
+                }
+
+                // 3. Kullanıcıyı Güncelle
+                const updatedUser = {
+                    ...user,
+                    portfolio: newPortfolio,
+                    cash: remainingCash, // Küsurat
+                    fundSwitches: user.fundSwitches + 1 
+                };
+                
+                await db.saveUser(user.email, updatedUser);
+                setUser(updatedUser);
+                showToast(`✅ Portföyünüz "${lifecycle.label}" stratejisine göre dengelendi.`);
             };
 
-            // --- FİNANSAL MOTOR: PORTFÖY DEĞERİ & ENFLASYON ETKİSİ (YENİ) ---
-            const portfolioValue = user ? user.portfolio.reduce((sum, item) => {
-                const fund = BES_FUNDS.find(f => f.code === item.code);
-                return sum + (fund ? item.units * fund.unitPrice : 0);
-            }, 0) : 0;
-            const totalAssets = user ? user.cash + portfolioValue : 0;
+            // --- İŞLEMLER ---
+            const executeDeposit = async () => {
+                const amt = parseFloat(depositAmount);
+                if (!amt || amt <= 0) return showToast('Tutar girin', 'error');
+                
+                const year = new Date().getFullYear();
+                const thisYearContribution = user.annualContributions?.[year] || 0;
+                const remainingLimit = STATE_CONTRIBUTION_ANNUAL_LIMIT - thisYearContribution;
+                const eligibleAmount = Math.max(0, Math.min(amt, remainingLimit));
+                const actualStateCont = eligibleAmount * 0.30;
+                
+                if (actualStateCont < amt * 0.30) {
+                    showToast(`⚠️ Limit doldu. Sadece ${formatMoney(actualStateCont)} katkı eklendi.`, 'warning');
+                } else {
+                    showToast(`${formatMoney(amt)} yatırıldı! +${formatMoney(actualStateCont)} devlet katkısı.`);
+                }
 
-            const inflationImpact = useMemo(() => {
-                if (!user) return null;
-                const yearsInBES = user.joinedDate ? Math.max(0.1, (new Date() - new Date(user.joinedDate)) / (365 * 24 * 60 * 60 * 1000)) : 0.1;
-                
-                // Senaryo: %45 Enflasyon, %20 Mevduat Faizi
-                const avgInflation = 0.45; 
-                const bankInterest = 0.20; 
-                
-                // Satın Alma Gücü (Reel Değer) Kaybı Hesabı
-                // "Eğer paramı BES'e koymasaydım ve bankada tutsaydım, enflasyona göre değeri ne olurdu?"
-                const realCashValue = user.totalDeposited * Math.pow((1 + bankInterest) / (1 + avgInflation), yearsInBES);
-                
-                // BES Sayesinde Korunan Tutar
-                // (Mevcut BES Varlığı) - (Bankadaki Erimiş Para)
-                const savedAmount = totalAssets - realCashValue;
-                const savedPercent = realCashValue > 0 ? ((savedAmount / realCashValue) * 100).toFixed(0) : 0;
-                
-                // Aylık Nakit Erozyonu (Kullanıcının boşta duran parası ne kadar eriyor?)
-                // Basit hesap: Nakit * (Aylık Enflasyon - Aylık Mevduat Getirisi Farkı)
-                // Enflasyon %45, Mevduat %20 -> Fark %25 yıllık erime -> Aylık ~%2 erime
-                const monthlyLoss = user.cash * (0.02);
+                const updated = { 
+                    ...user, cash: user.cash + amt,
+                    stateContribution: user.stateContribution + actualStateCont,
+                    totalDeposited: user.totalDeposited + amt,
+                    annualContributions: { ...user.annualContributions, [year]: thisYearContribution + amt }
+                };
+                await db.saveUser(user.email, updated);
+                setUser(updated);
+                setSelectedFund(null);
+                setShowBasketModal(true); 
+            };
 
-                return { cashValue: realCashValue, savedAmount, savedPercent, monthlyLoss };
-            }, [user, totalAssets]);
+            const executeTrade = async () => {
+                const amt = parseFloat(tradeAmount);
+                if (user.cash < amt) return showToast('Yetersiz bakiye', 'error');
+                if (user.fundSwitches >= 12) return showToast('⛔ Yıllık 12 fon değişim hakkınız doldu!', 'error');
 
-            // --- AKILLI SEPET MANTIĞI ---
-            const getSmartBaskets = (amount) => {
-                return [
-                    { id: 'safe', name: 'Güvenli Liman', risk: 'Düşük', desc: 'Enflasyona karşı korur, volatilite düşüktür.', allocation: { 'Altın': 60, 'Katılım': 40 }, expectedReturn: '25% - 35%', scenario: { best: amount * 1.45, normal: amount * 1.30, worst: amount * 1.15 } },
-                    { id: 'balanced', name: 'Dengeli Büyüme', risk: 'Orta', desc: 'Hem koruma hem de büyüme hedefler.', allocation: { 'Değişken': 40, 'Altın': 30, 'Teknoloji': 30 }, expectedReturn: '40% - 60%', scenario: { best: amount * 1.70, normal: amount * 1.50, worst: amount * 1.20 } },
-                    { id: 'growth', name: 'Fırsat Odaklı', risk: 'Yüksek', desc: 'Maksimum getiri için hisse ve teknoloji ağırlıklı.', allocation: { 'Hisse': 50, 'Teknoloji': 50 }, expectedReturn: '70% - 110%', scenario: { best: amount * 2.20, normal: amount * 1.80, worst: amount * 0.90 } }
-                ];
+                const units = amt / selectedFund.unitPrice;
+                const p = user.portfolio.map(item => ({...item})); 
+                const exist = p.find(x => x.code === selectedFund.code);
+                if (exist) { exist.units += units; exist.totalInvested += amt; } 
+                else { p.push({ code: selectedFund.code, units, totalInvested: amt }); }
+                
+                const u = { ...user, cash: user.cash - amt, portfolio: p, fundSwitches: user.fundSwitches + 1 };
+                await db.saveUser(user.email, u); setUser(u); setSelectedFund(null); showToast('İşlem Başarılı');
+            };
+            
+            const activateAutoInvest = (strategyId) => {
+                const annualContribution = autoInvestAmount * 12;
+                const projectedStateContribution = annualContribution * 0.30;
+                if (projectedStateContribution > STATE_CONTRIBUTION_ANNUAL_LIMIT) {
+                    showToast(`⚠️ Limit aşımı riski! Maksimum aylık: ${formatMoney(STATE_CONTRIBUTION_ANNUAL_LIMIT / 0.30 / 12)}`, 'warning');
+                    return;
+                }
+                setSelectedStrategy(strategyId);
+                setAutoInvestActive(true);
+                setShowBasketModal(false);
+                showToast(`✅ Otomatik Katılım Talimatı Alındı: ${strategyId.toUpperCase()}`);
             };
 
             const applyBasket = async (basketId, amount) => {
@@ -231,7 +531,7 @@
                 const basket = baskets.find(b => b.id === basketId);
                 let remainingCash = user.cash;
                 if (remainingCash < amount) return showToast('Bakiye yetersiz!', 'error');
-                const newPortfolio = [...user.portfolio];
+                const newPortfolio = user.portfolio.map(item => ({...item}));
                 Object.entries(basket.allocation).forEach(([cat, percent]) => {
                     const fundsInCat = BES_FUNDS.filter(f => f.category === cat);
                     const targetFund = fundsInCat[0]; 
@@ -244,173 +544,247 @@
                 const updatedUser = { ...user, cash: user.cash - amount, portfolio: newPortfolio, fundSwitches: user.fundSwitches + 1 };
                 await db.saveUser(user.email, updatedUser);
                 setUser(updatedUser);
-                setShowBasketModal(false);
-                setDepositAmount('');
-                showToast(`🚀 ${basket.name} stratejisi başarıyla uygulandı!`);
+                showToast(`🚀 ${basket.name} uygulandı!`);
             };
 
-            // --- AUTH & İŞLEMLER ---
-            const sendVerificationCode = () => { if (!regEmail.includes('@')) return showToast('Geçersiz e-posta', 'error'); setGeneratedCode('123456'); setIsCodeSent(true); showToast('Kod: 123456 (Demo)', 'success'); };
-            const handleLogin = async () => { 
-                const u = await db.getUser(loginEmail); 
-                if (!u) return showToast('Kullanıcı yok', 'error'); 
-                if (u.passwordHash !== await hashPassword(loginPassword)) return showToast('Hatalı şifre', 'error');
-                loadUser(loginEmail); localStorage.setItem('lastBESUser', loginEmail); 
-            };
-            const handleRegister = async () => {
-                if (regCodeInput !== '123456') return showToast('Kod hatalı', 'error');
-                const u = { email: regEmail, fullName: regName, passwordHash: await hashPassword(regPassword), age: parseInt(regAge), cash: 0, portfolio: [], totalDeposited: 0, stateContribution: 0, fundSwitches: 0, lastCheckYear: new Date().getFullYear(), joinedDate: new Date().toISOString() };
-                await db.saveUser(regEmail, u); setUser(u); localStorage.setItem('lastBESUser', regEmail); setScreen('app');
-            };
-            
-            const executeDeposit = async () => {
-                const amt = parseFloat(depositAmount);
-                if (!amt || amt <= 0) return showToast('Tutar girin', 'error');
-                const stateCont = amt * 0.30;
-                const updated = { ...user, cash: user.cash + amt + stateCont, totalDeposited: user.totalDeposited + amt, stateContribution: user.stateContribution + stateCont };
-                await db.saveUser(user.email, updated);
-                setUser(updated);
-                setSelectedFund(null);
-                setShowBasketModal(true); 
+            const calculatePortfolioWeightedReturn = () => {
+                if (!user || user.portfolio.length === 0) return 0.25; 
+                let totalValue = 0;
+                let weightedReturnSum = 0;
+                user.portfolio.forEach(item => {
+                    const fund = BES_FUNDS.find(f => f.code === item.code);
+                    const value = item.units * fund.unitPrice;
+                    totalValue += value;
+                    const nominalReturn = fund.return1Y / 100;
+                    const avgInflation = 0.25; 
+                    const realReturn = ((1 + nominalReturn) / (1 + avgInflation)) - 1;
+                    weightedReturnSum += value * realReturn;
+                });
+                return totalValue > 0 ? weightedReturnSum / totalValue : 0.05; 
             };
 
-            const executeTrade = async () => {
-                const amt = parseFloat(tradeAmount);
-                if (user.cash < amt) return showToast('Yetersiz bakiye', 'error');
-                const units = amt / selectedFund.unitPrice;
-                const p = [...user.portfolio];
-                const exist = p.find(x => x.code === selectedFund.code);
-                if (exist) { exist.units += units; exist.totalInvested += amt; } else { p.push({ code: selectedFund.code, units, totalInvested: amt }); }
-                const u = { ...user, cash: user.cash - amt, portfolio: p, fundSwitches: user.fundSwitches + 1 };
-                await db.saveUser(user.email, u); setUser(u); setSelectedFund(null); showToast('İşlem Başarılı');
-            };
-
-            // --- AI SKORLAMA ---
-            const calculateAIScore = (fund, age) => {
-                let score = 50; 
-                score += (fund.return1Y / 2); 
-                if (age < 35 && fund.riskLevel >= 4) score += 20; 
-                if (age > 50 && fund.riskLevel <= 2) score += 20; 
-                score += (fund.sharpe * 5);
-                return Math.min(100, Math.round(score));
-            };
-
-            // --- SİMÜLASYON VERİSİ ---
+            // --- SİMÜLASYON VE SENARYO ANALİZİ (GÜNCELLENDİ) ---
             const simulationData = useMemo(() => {
                 if (!user) return [];
-                const profile = getRiskProfile(user.age);
-                const returns = { 'aggressive': 0.08, 'moderate': 0.05, 'conservative': 0.02 };
-                const monthlyRate = returns[profile.level] / 12;
-                
-                // Karşılaştırma için mevduat oranı (Reel değil nominal düşünelim basitlik için ama burada reel üzerinden gidiyoruz)
-                // Simülasyon "Reel Getiri" üzerine kurulu olduğu için, "Nakit Tutmak" aslında negatif reel getiri demektir.
-                // Enflasyon %45, Mevduat %20 -> Reel Getiri yaklaşık -%17.
-                const cashRealRate = -0.17 / 12; 
+                const annualRealRate = calculatePortfolioWeightedReturn();
+                const monthlyRate = annualRealRate / 12;
+                const managementFeeRate = 0.02 / 12; 
 
-                let currentBalance = user.cash + (user.portfolio.reduce((acc, i) => acc + (i.units * BES_FUNDS.find(x => x.code === i.code).unitPrice), 0));
-                let cashScenarioBalance = currentBalance; // Sadece nakitte tutsaydı
+                // Senaryolar için varyasyonlar (Standart Sapma etkisi)
+                const volatility = 0.15; // Ortalama yıllık volatilite
+
+                // --- DEĞİŞİKLİK BURADA: Simülasyonun "Bugünden" Başlaması ---
+                // Mevcut Toplam Varlık (Sadece BES'te var, Mevduatta yok)
+                const currentBesValue = user.totalDeposited + user.stateContribution + (user.portfolio.reduce((acc, i) => acc + (i.units * BES_FUNDS.find(x => x.code === i.code).unitPrice), 0));
+                
+                let currentBalance = currentBesValue; // BES şu anki parayla devam eder
+                let balanceBest = currentBesValue;
+                let balanceWorst = currentBesValue;
+                
+                // MEVDUAT: Sıfırdan başlar çünkü kullanıcı BES'ten çıkıp mevduata geçerse, o anki birikimi değil, yeni yatırdıklarını kıyaslar.
+                // Çıkan para = Mevcut Nakit + Fonlar - Stopaj (Hakedişe bakmaksızın ana parayı alıp mevduata koyabilir)
+                // Bu senaryoda: Kullanıcı BES'i bozup mevduata geçerse eline ne geçer?
+                // CalculateVestedAmount zaten bugün çıkarsa ne alacağını hesaplıyor.
+                // Mevduat başlangıcı = netIfWithdrawNow
+                
+                const todayExitValue = calculateVestedAmount?.netIfWithdrawNow || 0;
+                let mevduatBalance = todayExitValue; 
 
                 const data = [];
-                for (let year = 1; year <= simYears; year++) {
+                // Dinamik Süre: Emekliliğe kadar (Maksimum 56 - Yaş)
+                const maxSimYears = 56 - user.age;
+                const effectiveSimYears = Math.min(Math.max(10, simYears), maxSimYears > 0 ? maxSimYears : 10);
+
+                for (let year = 1; year <= effectiveSimYears; year++) {
                     let yearlyStateCont = simMonthly * 12 * 0.30;
                     for(let m=0; m<12; m++) {
+                        // BES
                         currentBalance = (currentBalance + simMonthly) * (1 + monthlyRate);
-                        cashScenarioBalance = (cashScenarioBalance + simMonthly) * (1 + cashRealRate);
+                        currentBalance = currentBalance * (1 - managementFeeRate);
+                        
+                        // Senaryo
+                        const monthlyVol = volatility / Math.sqrt(12);
+                        balanceBest = (balanceBest + simMonthly) * (1 + monthlyRate + monthlyVol);
+                        balanceWorst = (balanceWorst + simMonthly) * (1 + monthlyRate - monthlyVol);
+
+                        // MEVDUAT
+                        mevduatBalance = (mevduatBalance + simMonthly) * (1 + 0.20/12);
                     }
-                    currentBalance += yearlyStateCont; // Devlet katkısı sadece BES'te var
+                    currentBalance += yearlyStateCont;
+                    balanceBest += yearlyStateCont;
+                    balanceWorst += yearlyStateCont;
                     
+                    let taxRate = 0.15;
+                    if (year >= 10) taxRate = 0.10;
+                    if (year + user.age >= 56 && year >= 10) taxRate = 0.05;
+                    
+                    const estimatedProfit = currentBalance * 0.4; 
+                    const netBalance = currentBalance - (estimatedProfit * taxRate);
+                    
+                    // MEVDUAT NET: Sadece kârdan %15 stopaj
+                    // Mevduat için yatırılan ana para (Başlangıç + Yıllık Katkılar)
+                    const totalDepositedMevduat = todayExitValue + (simMonthly * 12 * year);
+                    const mevduatProfit = mevduatBalance - totalDepositedMevduat;
+                    const mevduatNet = mevduatBalance - (mevduatProfit * 0.15);
+
+                    // REEL GETİRİ DÖNÜŞÜMÜ (Eğer istenirse)
+                    let displayBes = netBalance;
+                    let displayDeposit = mevduatNet;
+                    let displayBest = balanceBest;
+                    let displayWorst = balanceWorst;
+
+                    if (showRealReturn) {
+                        const inflationFactor = Math.pow(1.45, year);
+                        displayBes = displayBes / inflationFactor;
+                        displayDeposit = displayDeposit / inflationFactor;
+                        displayBest = displayBest / inflationFactor;
+                        displayWorst = displayWorst / inflationFactor;
+                    }
+
                     data.push({ 
                         year: `Yıl ${year}`, 
-                        tahmini: Math.round(currentBalance), 
-                        anaPara: Math.round((user.totalDeposited || 0) + (simMonthly * 12 * year)),
-                        mevduat: Math.round(cashScenarioBalance) // Nakitte/Mevduatta kalan para (eriyor)
+                        tahmini: Math.round(displayBes), 
+                        best: Math.round(displayBest), 
+                        worst: Math.round(displayWorst), 
+                        anaPara: Math.round((user.totalDeposited || 0) + (simMonthly * 12 * year)), 
+                        mevduat: Math.round(displayDeposit)
                     });
                 }
                 return data;
-            }, [user, simYears, simMonthly]);
+            }, [user, simYears, simMonthly, showRealReturn, calculateVestedAmount]);
 
-            // --- AI TAVSİYELERİ (GÜNCELLENMİŞ) ---
+            const inflationImpact = useMemo(() => {
+                if (!user) return null;
+                const yearsInBES = user.joinedDate ? Math.max(0.1, (new Date() - new Date(user.joinedDate)) / (365 * 24 * 60 * 60 * 1000)) : 0.1;
+                const avgInflation = 0.45; const bankInterest = 0.20; 
+                const realCashValue = user.totalDeposited * Math.pow((1 + bankInterest) / (1 + avgInflation), yearsInBES);
+                const portfolioValue = user.portfolio.reduce((acc, i) => acc + (i.units * BES_FUNDS.find(f => f.code === i.code).unitPrice), 0);
+                const totalAssets = user.cash + portfolioValue;
+                const savedAmount = totalAssets - realCashValue;
+                const savedPercent = realCashValue > 0 ? ((savedAmount / realCashValue) * 100).toFixed(0) : 0;
+                const monthlyLoss = user.cash * (0.02);
+                return { cashValue: realCashValue, savedAmount, savedPercent, monthlyLoss };
+            }, [user]);
+
             const recommendations = useMemo(() => {
                 if (!user) return [];
                 const recs = [];
                 const profile = getRiskProfile(user.age);
-                
-                // 1. NAKİT EROZYONU UYARISI (EN KRİTİK)
-                if (user.cash > 1000) {
+                const currentAge = user.age + demoYears;
+                const yearsInSystem = calculateVestedAmount?.yearsInBES || 0;
+
+                // DİNAMİK REBALANCING (DEMO YILINA GÖRE)
+                if (demoYears > 0) {
+                     // 1. ZAMAN BAZLI REBALANCING
+                     if (demoYears % 3 === 0) {
+                        const topPerformer = findTopPerformingFund(user.portfolio);
+                        const worstPerformer = findWorstPerformingFund(user.portfolio);
+                        if (topPerformer && worstPerformer && topPerformer.code !== worstPerformer.code) {
+                            recs.push({
+                                code: 'REBALANCE_TIME',
+                                priority: 'Orta',
+                                reason: `⏰ ${demoYears} yıl geçti. ${topPerformer.name} fonu çok değerlendi. Kârın bir kısmını (%${topPerformer.gain}) düşük performanslı fona aktararak dengeleyin.`,
+                                action: 'switch'
+                            });
+                        }
+                     }
+                     
+                     // 2. YAŞ / EMEKLİLİK TETİKLEYİCİSİ
+                     if (currentAge >= 50 && user.age < 50) {
+                         const currentEquity = calculateEquityPercent(user.portfolio);
+                         if (currentEquity > 40) {
+                             recs.push({
+                                 code: 'LIFECYCLE_50',
+                                 priority: 'Kritik',
+                                 reason: `🎯 50 yaş milestonu! Risk toleransınız düşüyor. Hisse oranınızı %${currentEquity.toFixed(0)} -> %40 seviyesine indirin.`,
+                                 action: 'lifecycle'
+                             });
+                         }
+                     }
+                }
+
+                // 1. REBALANCING (Dengeleme) Önerisi
+                const currentAllocation = {};
+                let totalPortVal = 0;
+                user.portfolio.forEach(item => {
+                    const fund = BES_FUNDS.find(f => f.code === item.code);
+                    const val = item.units * fund.unitPrice;
+                    currentAllocation[fund.category] = (currentAllocation[fund.category] || 0) + val;
+                    totalPortVal += val;
+                });
+
+                if (totalPortVal > 0) {
+                    const lifecycle = getLifecycleAllocation(currentAge);
+                    const equityPercent = ((currentAllocation['Hisse'] || 0) + (currentAllocation['Teknoloji'] || 0)) / totalPortVal * 100;
+                    
+                    if (Math.abs(equityPercent - lifecycle.equity) > 15) {
+                        const action = equityPercent > lifecycle.equity ? 'azaltın' : 'artırın';
+                        recs.push({
+                            code: 'REBALANCE',
+                            action: 'rebalance',
+                            reason: `⚠️ Portföy Dengesizliği: Hisse oranınız %${equityPercent.toFixed(0)}, hedef %${lifecycle.equity}. Riski yönetmek için hisse fonlarını ${action}.`,
+                            priority: 'Yüksek'
+                        });
+                    }
+                }
+
+                // 2. VERGİ AVANTAJI UYARISI
+                if (yearsInSystem >= 9 && yearsInSystem < 10) {
                     recs.push({
-                        code: 'NAKİT', 
-                        action: 'buy', 
-                        reason: `⚠️ DİKKAT: Hesabınızdaki nakit para enflasyon karşısında eriyor! Mevcut durumda aylık tahmini ${formatMoney(inflationImpact?.monthlyLoss || 0)} satın alma gücü kaybediyorsunuz. Acilen fona geçmelisiniz.`, 
+                        code: 'VERGİ',
+                        action: 'info',
+                        reason: `💡 Kritik Dönemeç: Sistemde 9 yılı doldurdunuz. 1 yıl daha beklerseniz stopaj %15'ten %10'a düşecek. Çıkış yapmayın!`,
                         priority: 'Kritik'
                     });
                 }
-
-                // 2. Profil Bazlı Öneriler
+                
+                if (user.fundSwitches >= 12) {
+                    recs.push({ code: 'LİMİT', priority: 'Kritik', reason: '⛔ Bu yıl için 12 fon değişim hakkınız doldu. Yeni yıla kadar mevcut portföyü koruyun.', action: 'info' });
+                    return recs; 
+                }
+                if (user.cash > 1000) {
+                    recs.push({ code: 'NAKİT', action: 'buy', reason: `⚠️ DİKKAT: Nakitiniz eriyor! Aylık tahmini ${formatMoney(inflationImpact?.monthlyLoss || 0)} kaybediyorsunuz.`, priority: 'Kritik' });
+                }
+                
                 const hasGold = user.portfolio.some(p => BES_FUNDS.find(f => f.code === p.code)?.category === 'Altın');
                 const hasTech = user.portfolio.some(p => BES_FUNDS.find(f => f.code === p.code)?.category === 'Teknoloji');
 
-                if (profile.level === 'aggressive') {
-                    if (!hasTech) recs.push({ code: 'TEKNO', action: 'buy', reason: 'Agresif profiliniz için teknoloji fonları eksik.', priority: 'Yüksek' });
-                } else {
-                    if (!hasGold) recs.push({ code: 'ALTIN', action: 'buy', reason: 'Enflasyona karşı koruma kalkanı olarak Altın fonu eklemelisiniz.', priority: 'Yüksek' });
-                }
-                const topFund = [...BES_FUNDS].sort((a,b) => b.return1Y - a.return1Y)[0];
-                recs.push({ code: topFund.code, action: 'info', reason: `Son 1 yılın şampiyonu %${topFund.return1Y} getiri ile ${topFund.name}.`, priority: 'Düşük' });
+                if (profile.level === 'aggressive' && !hasTech) recs.push({ code: 'TEKNO', action: 'buy', reason: 'Agresif profiliniz için teknoloji fonları eksik.', priority: 'Yüksek' });
+                if (profile.level !== 'aggressive' && !hasGold) recs.push({ code: 'ALTIN', action: 'buy', reason: 'Enflasyona karşı koruma kalkanı olarak Altın fonu eklemelisiniz.', priority: 'Yüksek' });
                 return recs;
-            }, [user, inflationImpact]);
+            }, [user, inflationImpact, demoYears, calculateVestedAmount]);
 
-            // RENDER: BASKET MODAL
+            const sendVerificationCode = () => { if (!regEmail.includes('@')) return showToast('Geçersiz e-posta', 'error'); setGeneratedCode('123456'); setIsCodeSent(true); showToast('Kod: 123456 (Demo)', 'success'); };
+            const handleLogin = async () => { const u = await db.getUser(loginEmail); if (!u) return showToast('Kullanıcı yok', 'error'); if (u.passwordHash !== await hashPassword(loginPassword)) return showToast('Hatalı şifre', 'error'); loadUser(loginEmail); localStorage.setItem('lastBESUser', loginEmail); };
+            const handleRegister = async () => { 
+                if (regCodeInput !== '123456') return showToast('Kod hatalı', 'error'); 
+                const u = { 
+                    email: regEmail, fullName: regName, passwordHash: await hashPassword(regPassword), 
+                    age: parseInt(regAge), 
+                    targetMonthly: 2000, targetDuration: 10, cash: 0, portfolio: [], totalDeposited: 0, stateContribution: 0, fundSwitches: 0, 
+                    lastCheckYear: new Date().getFullYear(), joinedDate: new Date().toISOString() 
+                }; 
+                await db.saveUser(regEmail, u); setUser(u); localStorage.setItem('lastBESUser', regEmail); setScreen('app'); 
+            };
+
+            // --- RENDER ---
+            
             const BasketModal = () => {
                 if (!showBasketModal) return null;
-                const amt = parseFloat(depositAmount) || user.cash; 
-                const baskets = getSmartBaskets(amt);
+                const amt = parseFloat(depositAmount) || user.cash; const baskets = getSmartBaskets(amt);
                 return (
                     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                         <div className="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-                            <div className="flex justify-between items-center mb-6">
-                                <div><h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2"><Icons.Brain className="text-indigo-600"/> Yapay Zeka Strateji Önerileri</h2><p className="text-slate-500 text-sm">Yatırdığınız {formatMoney(amt)} için profilinize uygun 3 dağılım hazırladık.</p></div>
-                                <button onClick={() => setShowBasketModal(false)} className="text-slate-400 hover:text-red-500"><Icons.LogOut size={24}/></button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {baskets.map(basket => (
-                                    <div key={basket.id} className="border border-slate-200 rounded-xl p-5 hover:border-indigo-300 transition hover:shadow-lg relative overflow-hidden group">
-                                        <div className={`absolute top-0 left-0 w-full h-1 ${basket.id === 'growth' ? 'bg-red-500' : basket.id === 'balanced' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-                                        <h3 className="font-bold text-lg mb-1">{basket.name}</h3>
-                                        <span className="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{basket.risk} Risk</span>
-                                        <p className="text-xs text-slate-500 mt-2 min-h-[40px]">{basket.desc}</p>
-                                        <div className="my-4 space-y-2">{Object.entries(basket.allocation).map(([k, v]) => (<div key={k} className="flex items-center justify-between text-sm"><span>{k}</span><div className="flex-1 mx-2 h-2 bg-slate-100 rounded-full overflow-hidden"><div style={{width: `${v}%`}} className={`h-full ${COLORS[k] ? '' : 'bg-slate-400'}`} style={{backgroundColor: COLORS[k]}}></div></div><span className="font-bold">%{v}</span></div>))}</div>
-                                        <div className="bg-slate-50 p-3 rounded-lg mb-4 text-xs"><div className="flex justify-between mb-1"><span>Beklenen (1 Yıl):</span> <span className="font-bold text-indigo-600">{basket.expectedReturn}</span></div><div className="flex justify-between text-slate-400"><span>Kötü Senaryo:</span> <span>{formatMoney(basket.scenario.worst)}</span></div><div className="flex justify-between text-emerald-600"><span>İyi Senaryo:</span> <span>{formatMoney(basket.scenario.best)}</span></div></div>
-                                        <button onClick={() => applyBasket(basket.id, amt)} className="w-full py-2 bg-slate-900 text-white rounded-lg font-semibold hover:bg-indigo-600 transition">Uygula</button>
-                                    </div>
-                                ))}
-                            </div>
+                            <div className="flex justify-between items-center mb-6"><div><h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2"><Icons.Brain className="text-indigo-600"/> Yapay Zeka Strateji Önerileri</h2><p className="text-slate-500 text-sm">Yatırdığınız {formatMoney(amt)} için profilinize uygun 3 dağılım.</p></div><button onClick={() => setShowBasketModal(false)} className="text-slate-400 hover:text-red-500"><Icons.LogOut size={24}/></button></div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">{baskets.map(basket => (<div key={basket.id} className="border border-slate-200 rounded-xl p-5 hover:border-indigo-300 transition hover:shadow-lg relative overflow-hidden group"><div className={`absolute top-0 left-0 w-full h-1 ${basket.id === 'growth' ? 'bg-red-500' : basket.id === 'balanced' ? 'bg-blue-500' : 'bg-green-500'}`}></div><h3 className="font-bold text-lg mb-1">{basket.name}</h3><span className="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600">{basket.risk} Risk</span><p className="text-xs text-slate-500 mt-2 min-h-[40px]">{basket.desc}</p><div className="my-4 space-y-2">{Object.entries(basket.allocation).map(([k, v]) => (<div key={k} className="flex items-center justify-between text-sm"><span>{k}</span><div className="flex-1 mx-2 h-2 bg-slate-100 rounded-full overflow-hidden"><div style={{width: `${v}%`}} className={`h-full ${COLORS[k] ? '' : 'bg-slate-400'}`} style={{backgroundColor: COLORS[k]}}></div></div><span className="font-bold">%{v}</span></div>))}</div><div className="bg-slate-50 p-3 rounded-lg mb-4 text-xs"><div className="flex justify-between mb-1"><span>Beklenen:</span> <span className="font-bold text-indigo-600">{basket.expectedReturn}</span></div></div><div className="space-y-2"><button onClick={() => applyBasket(basket.id, amt)} className="w-full py-2 bg-slate-900 text-white rounded-lg font-semibold hover:bg-indigo-600 transition">Uygula (Tek Sefer)</button><button onClick={() => activateAutoInvest(basket.id)} className={`w-full py-2 border rounded-lg font-semibold text-xs transition ${autoInvestActive && selectedStrategy === basket.id ? 'bg-green-100 border-green-500 text-green-700' : 'hover:bg-slate-50'}`}>{autoInvestActive && selectedStrategy === basket.id ? <span className="flex items-center justify-center gap-2"><Icons.CheckCircle size={14}/> Aktif Strateji</span> : <span className="flex items-center justify-center gap-2"><Icons.Refresh size={14}/> Her Ay Otomatik Al</span>}</button></div></div>))}</div>
                         </div>
                     </div>
                 );
             };
 
-            // RENDER: FUND DETAIL MODAL
-            const FundDetailModal = () => {
-                const [activeTab, setActiveTab] = useState('overview'); 
-                if (!selectedFund || selectedFund === 'deposit') return null;
-                const f = selectedFund;
-                const aiScore = calculateAIScore(f, user.age);
-                return (
-                    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in flex flex-col max-h-[90vh]">
-                            <div className="bg-slate-900 p-6 text-white shrink-0">
-                                <div className="flex justify-between items-start"><div><h3 className="text-xl font-bold flex items-center gap-2">{f.name} <RiskBadge level={f.riskLevel}/></h3><div className="text-slate-400 text-sm mt-1">{f.code} • {f.category}</div></div><button onClick={() => setSelectedFund(null)} className="text-white/50 hover:text-white text-2xl">&times;</button></div>
-                                <div className="flex gap-4 mt-6 text-sm font-medium border-b border-white/10 pb-1">{['Genel Bakış', 'Grafik & Analiz', 'AI Raporu', 'İşlem'].map((t, i) => { const key = ['overview', 'chart', 'ai', 'trade'][i]; return <button key={key} onClick={() => setActiveTab(key)} className={`pb-2 transition ${activeTab === key ? 'text-white border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white'}`}>{t}</button> })}</div>
-                            </div>
-                            <div className="p-6 overflow-y-auto">
-                                {activeTab === 'overview' && ( <div className="grid grid-cols-2 gap-6"><div className="space-y-4"><div className="p-4 bg-slate-50 rounded-xl"><div className="text-xs text-slate-500">Güncel Fiyat</div><div className="text-2xl font-bold text-slate-900">{f.unitPrice} ₺</div></div><div className="p-4 bg-emerald-50 rounded-xl"><div className="text-xs text-emerald-700">Yıllık Getiri</div><div className="text-2xl font-bold text-emerald-600">%{f.return1Y}</div></div></div><div className="space-y-3 text-sm"><div className="flex justify-between border-b py-2"><span>Yönetici:</span> <span className="font-medium">{f.manager}</span></div><div className="flex justify-between border-b py-2"><span>Yönetim Ücreti:</span> <span className="font-medium">{f.fee}</span></div><div className="flex justify-between border-b py-2"><span>Sharpe Oranı:</span> <span className="font-medium bg-blue-100 px-2 rounded text-blue-700">{f.sharpe}</span></div><div className="flex justify-between border-b py-2"><span>Volatilite:</span> <span className="font-medium">{f.volatility}</span></div><div className="flex justify-between py-2"><span>Max Düşüş:</span> <span className="font-medium text-red-500">{f.drawdown}</span></div></div></div> )}
-                                {activeTab === 'chart' && ( <div className="h-64 w-full"><h4 className="font-bold mb-4 text-sm text-slate-500">Son 5 Yıl Performans Simülasyonu</h4><ResponsiveContainer width="100%" height="100%"><AreaChart data={f.history}><defs><linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="month" hide /><YAxis domain={['auto', 'auto']} hide /><Tooltip formatter={(v) => v.toFixed(2) + ' ₺'} /><Area type="monotone" dataKey="value" stroke="#3b82f6" fillOpacity={1} fill="url(#colorVal)" /></AreaChart></ResponsiveContainer><div className="mt-4 text-xs text-slate-400 bg-slate-50 p-2 rounded">⚠️ Bu grafik fonun geçmiş volatilite ve trend verilerine dayalı simülasyondur.</div></div> )}
-                                {activeTab === 'ai' && ( <div><div className="flex items-center gap-4 mb-6"><div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white ${aiScore > 70 ? 'bg-emerald-500' : aiScore > 50 ? 'bg-yellow-500' : 'bg-red-500'}`}>{aiScore}</div><div><h4 className="font-bold text-lg">AI Uyumluluk Skoru</h4><p className="text-sm text-slate-500">Sizin profilinize ({user.age} yaş) göre hesaplandı.</p></div></div><h5 className="font-bold text-sm mb-3">Karar Matrizi</h5><div className="space-y-3 text-sm"><div className="flex items-center justify-between p-2 bg-slate-50 rounded"><span>📊 Getiri Performansı</span><span className="font-mono text-green-600">+{Math.round(f.return1Y / 2)} puan</span></div><div className="flex items-center justify-between p-2 bg-slate-50 rounded"><span>⚖️ Risk/Getiri Dengesi (Sharpe)</span><span className="font-mono text-green-600">+{Math.round(f.sharpe * 5)} puan</span></div><div className="flex items-center justify-between p-2 bg-slate-50 rounded"><span>👤 Yaş Grubu Uyumu</span><span className={`font-mono ${(user.age < 35 && f.riskLevel >=4) || (user.age > 50 && f.riskLevel <=2) ? 'text-green-600' : 'text-slate-400'}`}>{(user.age < 35 && f.riskLevel >=4) ? '+20 puan (Genç/Risk)' : (user.age > 50 && f.riskLevel <=2) ? '+20 puan (Koruma)' : '0 puan'}</span></div></div></div> )}
-                                {activeTab === 'trade' && ( <div><div className="mb-6"><label className="block text-sm font-bold mb-2">Yatırım Tutarı (TL)</label><input type="number" value={tradeAmount} onChange={e => setTradeAmount(e.target.value)} className="w-full p-4 border rounded-xl text-lg font-bold" placeholder="0.00" /><div className="flex justify-between text-xs mt-2 text-slate-500"><span>Nakit: {formatMoney(user.cash)}</span><span>Birim Adet: {tradeAmount ? (tradeAmount / f.unitPrice).toFixed(2) : '0'}</span></div></div><button onClick={executeTrade} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200">Emri Onayla</button></div> )}
-                            </div>
-                        </div>
-                    </div>
-                );
+            const FundDetailModal = () => { 
+                const [activeTab, setActiveTab] = useState('overview'); if (!selectedFund || selectedFund === 'deposit') return null; const f = selectedFund; const aiScore = calculateAIScore(f, user.age);
+                return (<div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"><div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in flex flex-col max-h-[90vh]"><div className="bg-slate-900 p-6 text-white shrink-0"><div className="flex justify-between items-start"><div><h3 className="text-xl font-bold flex items-center gap-2">{f.name} <RiskBadge level={f.riskLevel}/></h3><div className="text-slate-400 text-sm mt-1">{f.code} • {f.category}</div></div><button onClick={() => setSelectedFund(null)} className="text-white/50 hover:text-white text-2xl">&times;</button></div><div className="flex gap-4 mt-6 text-sm font-medium border-b border-white/10 pb-1">{['Genel Bakış', 'Grafik & Analiz', 'AI Raporu', 'İşlem'].map((t, i) => { const key = ['overview', 'chart', 'ai', 'trade'][i]; return <button key={key} onClick={() => setActiveTab(key)} className={`pb-2 transition ${activeTab === key ? 'text-white border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white'}`}>{t}</button> })}</div></div><div className="p-6 overflow-y-auto">{activeTab === 'overview' && ( <div className="grid grid-cols-2 gap-6"><div className="space-y-4"><div className="p-4 bg-slate-50 rounded-xl"><div className="text-xs text-slate-500">Güncel Fiyat</div><div className="text-2xl font-bold text-slate-900">{f.unitPrice} ₺</div></div><div className="p-4 bg-emerald-50 rounded-xl"><div className="text-xs text-emerald-700">Yıllık Getiri</div><div className="text-2xl font-bold text-emerald-600">%{f.return1Y}</div></div></div><div className="space-y-3 text-sm"><div className="flex justify-between border-b py-2"><span>Yönetici:</span> <span className="font-medium">{f.manager}</span></div><div className="flex justify-between border-b py-2"><span>Yönetim Ücreti:</span> <span className="font-medium">{f.fee}</span></div><div className="flex justify-between border-b py-2"><span>Sharpe Oranı:</span> <span className="font-medium bg-blue-100 px-2 rounded text-blue-700">{f.sharpe}</span></div><div className="flex justify-between border-b py-2"><span>Volatilite:</span> <span className="font-medium">{f.volatility}</span></div><div className="flex justify-between py-2"><span>Max Düşüş:</span> <span className="font-medium text-red-500">{f.drawdown}</span></div></div></div> )}{activeTab === 'chart' && ( <div className="h-64 w-full"><h4 className="font-bold mb-4 text-sm text-slate-500">Son 5 Yıl Performans Simülasyonu</h4><ResponsiveContainer width="100%" height="100%"><AreaChart data={f.history}><defs><linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="month" hide /><YAxis domain={['auto', 'auto']} hide /><Tooltip formatter={(v) => v.toFixed(2) + ' ₺'} /><Area type="monotone" dataKey="value" stroke="#3b82f6" fillOpacity={1} fill="url(#colorVal)" /></AreaChart></ResponsiveContainer></div> )}{activeTab === 'ai' && ( <div><div className="flex items-center gap-4 mb-6"><div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white ${aiScore > 70 ? 'bg-emerald-500' : aiScore > 50 ? 'bg-yellow-500' : 'bg-red-500'}`}>{aiScore}</div><div><h4 className="font-bold text-lg">AI Uyumluluk Skoru</h4><p className="text-sm text-slate-500">Profiliniz: {user.age} yaş</p></div></div><h5 className="font-bold text-sm mb-3">Karar Matrizi</h5><div className="space-y-3 text-sm"><div className="flex items-center justify-between p-2 bg-slate-50 rounded"><span>📊 Getiri</span><span className="font-mono text-green-600">+{Math.round(f.return1Y / 2)}p</span></div><div className="flex items-center justify-between p-2 bg-slate-50 rounded"><span>⚖️ Risk</span><span className="font-mono text-green-600">+{Math.round(f.sharpe * 5)}p</span></div></div></div> )}{activeTab === 'trade' && ( <div><div className="mb-6"><label className="block text-sm font-bold mb-2">Yatırım Tutarı (TL)</label><input type="number" value={tradeAmount} onChange={e => setTradeAmount(e.target.value)} className="w-full p-4 border rounded-xl text-lg font-bold" placeholder="0.00" /></div><button onClick={executeTrade} className="w-full py-4 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200">Emri Onayla</button></div> )}</div></div></div>);
             };
 
             if (screen !== 'app') {
@@ -419,7 +793,20 @@
                         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
                             <div className="text-center mb-8"><div className="mx-auto mb-4 w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600"><Icons.Brain size={32}/></div><h1 className="text-2xl font-bold text-slate-900">BESPortföy AI</h1><p className="text-slate-500">Akıllı Strateji & Şeffaf Yönetim</p></div>
                             {screen === 'welcome' && ( <div className="space-y-3"><button onClick={() => setScreen('login')} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Giriş Yap</button><button onClick={() => setScreen('register')} className="w-full border py-3 rounded-xl font-bold">Kayıt Ol</button></div> )}
-                            {(screen === 'login' || screen === 'register') && ( <div className="space-y-4">{screen === 'register' && <input type="text" placeholder="Ad Soyad" className="w-full p-3 border rounded-lg" value={regName} onChange={e=>setRegName(e.target.value)} />}<input type="email" placeholder="E-posta" className="w-full p-3 border rounded-lg" value={screen==='login'?loginEmail:regEmail} onChange={e=> screen==='login'?setLoginEmail(e.target.value):setRegEmail(e.target.value)} />{screen === 'register' && ( <div className="flex gap-2"><input type="text" placeholder="Yaş" className="w-1/3 p-3 border rounded-lg" value={regAge} onChange={e=>setRegAge(e.target.value)} /><button onClick={sendVerificationCode} className="flex-1 bg-slate-100 rounded-lg text-sm">{isCodeSent ? 'Kod Gitti' : 'Kod Gönder'}</button></div> )}{isCodeSent && <input type="text" placeholder="Kod (123456)" className="w-full p-3 border border-green-200 rounded-lg bg-green-50" value={regCodeInput} onChange={e=>setRegCodeInput(e.target.value)} />}<input type="password" placeholder="Şifre" className="w-full p-3 border rounded-lg" value={screen==='login'?loginPassword:regPassword} onChange={e=> screen==='login'?setLoginPassword(e.target.value):setRegPassword(e.target.value)} /><button onClick={screen==='login' ? handleLogin : handleRegister} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold mt-4">{screen==='login'?'Giriş':'Kaydı Tamamla'}</button><button onClick={() => setScreen('welcome')} className="w-full text-sm text-slate-500 mt-2">Geri Dön</button></div> )}
+                            {(screen === 'login' || screen === 'register') && ( <div className="space-y-4">
+                                {screen === 'register' && <input type="text" placeholder="Ad Soyad" className="w-full p-3 border rounded-lg" value={regName} onChange={e=>setRegName(e.target.value)} />}
+                                <input type="email" placeholder="E-posta" className="w-full p-3 border rounded-lg" value={screen==='login'?loginEmail:regEmail} onChange={e=> screen==='login'?setLoginEmail(e.target.value):setRegEmail(e.target.value)} />
+                                {screen === 'register' && ( 
+                                    <div className="flex gap-2">
+                                        <input type="number" placeholder="Yaş" className="w-1/3 p-3 border rounded-lg" value={regAge} onChange={e=>setRegAge(e.target.value)} />
+                                        <button onClick={sendVerificationCode} className="flex-1 bg-slate-100 rounded-lg text-sm">{isCodeSent ? 'Kod Gitti' : 'Kod Gönder'}</button>
+                                    </div>
+                                )}
+                                {isCodeSent && <input type="text" placeholder="Kod (123456)" className="w-full p-3 border border-green-200 rounded-lg bg-green-50" value={regCodeInput} onChange={e=>setRegCodeInput(e.target.value)} />}
+                                <input type="password" placeholder="Şifre" className="w-full p-3 border rounded-lg" value={screen==='login'?loginPassword:regPassword} onChange={e=> screen==='login'?setLoginPassword(e.target.value):setRegPassword(e.target.value)} />
+                                <button onClick={screen==='login' ? handleLogin : handleRegister} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold mt-4">{screen==='login'?'Giriş':'Kaydı Tamamla'}</button>
+                                <button onClick={() => setScreen('welcome')} className="w-full text-sm text-slate-500 mt-2">Geri Dön</button>
+                            </div> )}
                         </div>
                     </div>
                 );
@@ -428,15 +815,18 @@
             return (
                 <div className="min-h-screen pb-24 md:pb-0">
                     {toast && <div className="fixed top-4 right-4 z-[60] bg-slate-800 text-white px-6 py-3 rounded-full shadow-lg animate-fade-in flex items-center gap-2"><span>{toast.type==='error'?'⚠️':'✅'}</span>{toast.msg}</div>}
-                    
                     <FundDetailModal />
                     <BasketModal />
+                    
                     {selectedFund === 'deposit' && (
                         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-                                <h2 className="text-xl font-bold mb-4">Para Yatır & Strateji Seç</h2>
+                                <h2 className="text-xl font-bold mb-4">Para Yatır</h2>
                                 <input type="number" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} className="w-full p-4 border rounded-xl text-2xl font-bold mb-4" placeholder="0 TL" />
-                                <div className="bg-green-50 p-3 rounded-lg flex gap-2 items-center mb-6 text-green-800 text-sm"><Icons.TrendingUp size={16}/> %30 Devlet Katkısı eklenecek</div>
+                                <div className="bg-green-50 p-3 rounded-lg mb-6 text-sm">
+                                    <div className="flex justify-between mb-1"><span className="text-green-800 font-bold">Devlet Katkısı (%30)</span><span className="text-green-700">~{formatMoney(depositAmount*0.30)}</span></div>
+                                    <div className="text-xs text-green-600">Yıllık kalan limitiniz kontrol edilecek.</div>
+                                </div>
                                 <div className="flex gap-3"><button onClick={() => setSelectedFund(null)} className="flex-1 py-3 text-slate-500 font-bold">İptal</button><button onClick={executeDeposit} className="flex-1 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700">Yatır</button></div>
                             </div>
                         </div>
@@ -459,45 +849,119 @@
                         {tab === 'dashboard' && (
                             <div className="animate-fade-in space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="bg-gradient-to-br from-indigo-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg shadow-indigo-200">
-                                        <div className="text-indigo-100 text-sm font-medium">Toplam Varlık</div>
-                                        <div className="text-3xl font-bold">{formatMoney(user.cash + (user.portfolio.reduce((acc, i) => { const f = BES_FUNDS.find(x => x.code === i.code); return acc + (i.units * f.unitPrice); }, 0)))}</div>
-                                        <div className="mt-4 flex gap-2 text-xs bg-white/20 p-2 rounded-lg w-fit"><Icons.Shield size={14}/> Devlet Katkısı: {formatMoney(user.stateContribution)}</div>
-                                    </div>
-                                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                                        <div className="text-slate-500 text-sm">Nakit Bakiye</div>
-                                        <div className="text-2xl font-bold text-slate-900">{formatMoney(user.cash)}</div>
-                                        {user.cash > 1000 && <button onClick={() => setShowBasketModal(true)} className="mt-2 text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded font-bold hover:bg-indigo-100">Strateji Uygula</button>}
+                                    <div className="bg-gradient-to-br from-indigo-600 to-blue-600 text-white p-6 rounded-2xl shadow-lg shadow-indigo-200 relative overflow-hidden">
+                                        <div className="relative z-10">
+                                            <div className="text-indigo-100 text-sm font-medium">Toplam Varlık</div>
+                                            <div className="text-3xl font-bold">{formatMoney(calculateVestedAmount?.totalValue)}</div>
+                                            <div className="mt-4 flex gap-2 text-xs bg-white/20 p-2 rounded-lg w-fit"><Icons.Shield size={14}/> Devlet Katkısı: {formatMoney(user.stateContribution)}</div>
+                                        </div>
+                                        
+                                        {/* DEMO ZAMAN YOLCULUĞU SLIDER'I */}
+                                        <div className="absolute bottom-2 right-4 left-4">
+                                            <div className="text-[10px] text-indigo-200 flex justify-between mb-1">
+                                                <span>Demo: Sistemi İleri Sar (Sanal Yaş: {user.age + demoYears})</span>
+                                                <span className="font-bold">+{demoYears} Yıl</span>
+                                            </div>
+                                            <input type="range" min="0" max={Math.max(10, 56 - user.age)} step="1" value={demoYears} onChange={(e) => setDemoYears(parseInt(e.target.value))} className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white" />
+                                        </div>
                                     </div>
                                     
-                                    {/* NAKİT EROZYONU KARTI (YENİ) */}
-                                    {user.cash > 100 ? (
-                                        <div className="bg-red-50 p-6 rounded-2xl border border-red-100 shadow-sm">
-                                            <div className="text-red-500 text-sm font-bold flex items-center gap-1"><Icons.TrendingDown size={16}/> Enflasyon Etkisi</div>
-                                            <div className="text-2xl font-bold text-red-700">-{formatMoney(inflationImpact?.monthlyLoss)} <span className="text-xs font-normal text-red-400">/ay</span></div>
-                                            <div className="text-xs text-red-500 mt-1">Nakit paranızın alım gücü eriyor!</div>
+                                    {/* HAKEDİŞ KARTI */}
+                                    <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-white p-6 rounded-2xl shadow-lg shadow-orange-200">
+                                        <div className="text-amber-100 text-sm font-medium flex items-center gap-1"><Icons.Lock size={14}/> Net Çıkış Değeri</div>
+                                        <div className="text-3xl font-bold">{formatMoney(calculateVestedAmount?.netIfWithdrawNow)}</div>
+                                        <div className="mt-4 text-xs bg-white/20 p-2 rounded-lg inline-block">
+                                            {calculateVestedAmount?.vestingRate < 1 
+                                                ? `Hakediş: %${calculateVestedAmount?.vestingRate * 100} (Yıl: ${calculateVestedAmount?.yearsInBES.toFixed(1)})` 
+                                                : "Tam Hakediş Kazandınız! 🎉"}
+                                        </div>
+                                        <div className="text-[10px] text-amber-100 mt-1">Sistemden bugün çıkarsanız alacağınız tutar.</div>
+                                    </div>
+                                    
+                                    {/* OTOMATİK EMİR KARTI (YENİ) */}
+                                    {autoInvestActive ? (
+                                        <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-2 opacity-10"><Icons.Refresh size={64}/></div>
+                                            <div className="text-emerald-700 text-sm font-bold flex items-center gap-1"><Icons.Refresh size={16}/> Otomatik Katılım Aktif</div>
+                                            <div className="text-2xl font-bold text-emerald-900 mt-1">{formatMoney(autoInvestAmount)} <span className="text-xs font-normal">/ay</span></div>
+                                            <div className="text-xs text-emerald-600 mt-1">Strateji: {selectedStrategy === 'safe' ? 'Güvenli Liman' : selectedStrategy === 'balanced' ? 'Dengeli Büyüme' : 'Fırsat Odaklı'}</div>
+                                            <div className="mt-3 text-[10px] text-emerald-500 bg-white/50 p-1 rounded">Demo'da ileri sardıkça bu tutar otomatik eklenir.</div>
                                         </div>
                                     ) : (
-                                        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                                            <div className="text-slate-500 text-sm">Portföy Getirisi</div>
-                                            <div className={`text-2xl font-bold ${(user.cash + (user.portfolio.reduce((acc, i) => acc + (i.units * BES_FUNDS.find(x => x.code === i.code).unitPrice), 0)) - user.totalDeposited) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatMoney((user.cash + (user.portfolio.reduce((acc, i) => acc + (i.units * BES_FUNDS.find(x => x.code === i.code).unitPrice), 0)) - user.totalDeposited))}</div>
-                                            <div className="text-xs text-slate-400 mt-1">Anapara: {formatMoney(user.totalDeposited)}</div>
+                                        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-center items-center text-center cursor-pointer hover:border-indigo-200 transition" onClick={() => setShowBasketModal(true)}>
+                                            <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-2"><Icons.Refresh size={20}/></div>
+                                            <div className="text-sm font-bold text-slate-700">Otomatik Emir Oluştur</div>
+                                            <div className="text-xs text-slate-500 mt-1">Düzenli birikim ile emekliliğini garantile.</div>
                                         </div>
                                     )}
+                                </div>
+
+                                {/* VARLIK KIRILIM TABLOSU (YENİ EKLENDİ) */}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                                    <h3 className="font-bold text-slate-800 mb-4">Net Varlık Kırılımı</h3>
+                                    <div className="grid grid-cols-3 gap-4 text-center">
+                                        <div className="p-3 bg-slate-50 rounded-xl">
+                                            <div className="text-xs text-slate-500 mb-1">Ana Para</div>
+                                            <div className="font-bold text-slate-900">{formatMoney(calculateVestedAmount?.principal || 0)}</div>
+                                        </div>
+                                        <div className="p-3 bg-emerald-50 rounded-xl">
+                                            <div className="text-xs text-emerald-700 mb-1">Devlet Katkısı</div>
+                                            <div className="font-bold text-emerald-700">{formatMoney(calculateVestedAmount?.totalStateContribution || 0)}</div>
+                                        </div>
+                                        <div className="p-3 bg-blue-50 rounded-xl">
+                                            <div className="text-xs text-blue-700 mb-1">Fon Getirisi</div>
+                                            <div className="font-bold text-blue-700">{formatMoney(calculateVestedAmount?.profit || 0)}</div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 text-xs text-slate-400 text-center">* Çıkış durumunda devlet katkısının sadece <b>{formatMoney(calculateVestedAmount?.vestedStateCont)}</b> tutarını alabilirsiniz.</div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-80">
                                         <h3 className="font-bold mb-4">Varlık Dağılımı</h3>
-                                        {user.portfolio.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={user.portfolio.map(p => ({ name: BES_FUNDS.find(f => f.code === p.code).category, value: p.units * BES_FUNDS.find(f => f.code === p.code).unitPrice }))} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{user.portfolio.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[BES_FUNDS.find(f => f.code === entry.code)?.category] || '#ccc'} />)}</Pie><Tooltip formatter={(v) => formatMoney(v)} /></PieChart></ResponsiveContainer>
+                                        {user.portfolio.length > 0 || (autoInvestActive && demoYears > 0) ? (
+                                            <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={[...user.portfolio.map(p => ({ name: BES_FUNDS.find(f => f.code === p.code).category, value: p.units * BES_FUNDS.find(f => f.code === p.code).unitPrice })), ...(calculateVestedAmount?.autoInvestBreakdown?.map(i => ({name: i.category, value: i.value})) || [])]} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">{[...user.portfolio, ...(calculateVestedAmount?.autoInvestBreakdown || [])].map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.category || BES_FUNDS.find(f => f.code === entry.code).category] || '#ccc'} />)}</Pie><Tooltip formatter={(v) => formatMoney(v)} /></PieChart></ResponsiveContainer>
                                         ) : <div className="flex h-full items-center justify-center text-slate-400">Portföy boş</div>}
                                     </div>
                                     
                                     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                                         <h3 className="font-bold mb-4">Portföyüm</h3>
                                         <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                                            {user.portfolio.length > 0 ? user.portfolio.map(item => { const f = BES_FUNDS.find(x => x.code === item.code); return ( <div key={item.code} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition cursor-pointer border-l-4" style={{ borderLeftColor: COLORS[f.category] || '#ccc' }} onClick={() => setSelectedFund(f)}><div className="pl-2"><div className="font-bold text-slate-900">{f.code}</div><div className="text-xs text-slate-500">{f.name}</div></div><div className="text-right"><div className="font-bold">{formatMoney(item.units * f.unitPrice)}</div><div className="text-xs text-emerald-600">%{(f.return1Y).toFixed(1)} Yıllık</div></div></div> ) }) : <div className="text-center text-slate-400 py-8">Fon bulunmuyor.</div>}
+                                            {/* MANUAL FONLAR */}
+                                            {user.portfolio.map(item => { 
+                                                const f = BES_FUNDS.find(x => x.code === item.code); 
+                                                const simulatedMultiplier = Math.pow(1 + SIMULATION_GROWTH_RATE, demoYears);
+                                                const itemValue = item.units * f.unitPrice * simulatedMultiplier;
+
+                                                return ( 
+                                                    <div key={item.code} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition cursor-pointer border-l-4" style={{ borderLeftColor: COLORS[f.category] || '#ccc' }} onClick={() => setSelectedFund(f)}>
+                                                        <div className="pl-2">
+                                                            <div className="font-bold text-slate-900">{f.code}</div>
+                                                            <div className="text-xs text-slate-500">{f.name}</div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="font-bold">{formatMoney(itemValue)}</div>
+                                                            <div className="text-xs text-emerald-600">{demoYears > 0 ? '(Simüle)' : `%${(f.return1Y).toFixed(1)} Yıllık`}</div>
+                                                        </div>
+                                                    </div> 
+                                                ) 
+                                            })}
+                                            
+                                            {/* OTOMATİK BİRİKİM KIRILIMI (YENİ EKLENDİ) */}
+                                            {autoInvestActive && demoYears > 0 && calculateVestedAmount?.autoInvestBreakdown.map((item, idx) => (
+                                                <div key={`auto-${idx}`} className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg border border-emerald-100 border-l-4 border-l-emerald-500">
+                                                    <div>
+                                                        <div className="font-bold text-emerald-900">{item.category} Fonu</div>
+                                                        <div className="text-xs text-emerald-600">Otomatik Alım (Sepet)</div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="font-bold text-emerald-900">{formatMoney(item.value)}</div>
+                                                        <div className="text-xs text-emerald-500">Simüle Birikim</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                            {user.portfolio.length === 0 && (!autoInvestActive || demoYears === 0) && <div className="text-center text-slate-400 py-8">Fon bulunmuyor.</div>}
                                         </div>
                                     </div>
                                 </div>
@@ -517,36 +981,37 @@
                                     <div className="bg-indigo-900 text-white p-6 rounded-2xl shadow-lg">
                                         <Icons.Brain size={48} className="mb-4 text-indigo-300"/>
                                         <h3 className="text-xl font-bold mb-2">Yapay Zeka Karar Merkezi</h3>
-                                        <p className="text-indigo-200 text-sm mb-4">Sizin için binlerce veri noktasını analiz edip, şeffaf kararlar veriyorum.</p>
+                                        <p className="text-indigo-200 text-sm mb-4">Veri odaklı, şeffaf ve kişiselleştirilmiş analizler.</p>
                                         <div className="space-y-2 text-xs">
-                                            <div className="flex justify-between border-b border-indigo-700 pb-1"><span>Kullanılan Algoritma:</span> <span className="font-mono text-indigo-300">RandomForest v2.4</span></div>
-                                            <div className="flex justify-between border-b border-indigo-700 pb-1"><span>Analiz Edilen Fon:</span> <span className="font-mono text-indigo-300">324 Adet</span></div>
-                                            <div className="flex justify-between"><span>Risk Profiliniz:</span> <span className="font-bold text-white">{getRiskProfile(user.age).level === 'aggressive' ? 'AGRESİF' : 'DENGELİ'}</span></div>
+                                            <div className="flex justify-between border-b border-indigo-700 pb-1"><span>Kullanılan Algoritma:</span> <span className="font-mono text-indigo-300">Hybrid-Score v3</span></div>
+                                            <div className="flex justify-between border-b border-indigo-700 pb-1"><span>Risk Profiliniz:</span> <span className="font-bold text-white">{getRiskProfile(user.age).level === 'aggressive' ? 'AGRESİF' : 'DENGELİ'}</span></div>
+                                            <div className="flex justify-between border-b border-indigo-700 pb-1"><span>Kalan Değişim Hakkı:</span> <span className="font-mono text-white">{12 - user.fundSwitches}</span></div>
+                                        </div>
+                                        <div className="mt-4 pt-4 border-t border-indigo-700">
+                                            <div className="text-xs font-bold text-indigo-300 mb-2">CANLI MAKRO VERİLER (SİMÜLE)</div>
+                                            <div className="flex justify-between text-xs mb-1"><span>📈 Yıllık Enflasyon</span><span className="text-red-300">%45.0</span></div>
+                                            <div className="flex justify-between text-xs"><span>🏦 Mevduat Faizi</span><span className="text-emerald-300">%20.0</span></div>
                                         </div>
                                     </div>
-                                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm"><h4 className="font-bold mb-4">Nasıl Karar Veriyorum?</h4><ul className="space-y-4 text-sm"><li className="flex gap-3"><div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 shrink-0">1</div><div><span className="font-bold block">Getiri Analizi</span> Son 1 ve 3 yıllık performansı enflasyonla kıyaslarım.</div></li><li className="flex gap-3"><div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 shrink-0">2</div><div><span className="font-bold block">Risk Eşleşmesi</span> Yaşınıza uygun volatiliteye sahip fonları seçerim.</div></li><li className="flex gap-3"><div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 shrink-0">3</div><div><span className="font-bold block">Yönetici Puanı</span> Fon yöneticisinin geçmiş başarılarını incelerim.</div></li></ul></div>
+                                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm"><h4 className="font-bold mb-4">Nasıl Karar Veriyorum?</h4><ul className="space-y-4 text-sm"><li className="flex gap-3"><div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 shrink-0">1</div><div><span className="font-bold block">Getiri Analizi</span> Son 1 ve 3 yıllık performansı enflasyonla kıyaslarım.</div></li><li className="flex gap-3"><div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 shrink-0">2</div><div><span className="font-bold block">Risk Eşleşmesi</span> Yaşınıza uygun volatiliteye sahip fonları seçerim.</div></li><li className="flex gap-3"><div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 shrink-0">3</div><div><span className="font-bold block">Yaşam Döngüsü</span> Emekliliğe yaklaşanlar için koruma kalkanı oluştururum.</div></li></ul></div>
                                 </div>
                                 <div className="md:col-span-2 space-y-4">
                                     <h3 className="font-bold text-lg">AI Analiz & Tavsiyeler</h3>
-                                    
-                                    {/* AI TAVSİYELERİNİ LİSTELE */}
                                     {recommendations.map((rec, i) => (
                                         <div key={i} className={`bg-white p-5 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-start ${rec.priority === 'Kritik' ? 'border-red-200 bg-red-50' : 'border-slate-100'}`}>
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shrink-0 ${rec.priority === 'Kritik' ? 'bg-red-500' : 'bg-indigo-600'}`}>
-                                                <Icons.Zap size={20}/>
-                                            </div>
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shrink-0 ${rec.priority === 'Kritik' ? 'bg-red-500' : 'bg-indigo-600'}`}><Icons.Zap size={20}/></div>
                                             <div className="flex-1">
-                                                <div className="flex gap-2 items-center mb-1">
-                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${rec.priority === 'Kritik' ? 'bg-red-100 text-red-700' : 'bg-indigo-100 text-indigo-700'}`}>{rec.priority}</span>
-                                                    <h4 className="font-bold text-slate-900">{rec.code}</h4>
-                                                </div>
+                                                <div className="flex gap-2 items-center mb-1"><span className={`text-xs font-bold px-2 py-0.5 rounded ${rec.priority === 'Kritik' ? 'bg-red-100 text-red-700' : 'bg-indigo-100 text-indigo-700'}`}>{rec.priority}</span><h4 className="font-bold text-slate-900">{rec.code}</h4></div>
                                                 <p className="text-sm text-slate-600">{rec.reason}</p>
                                             </div>
                                             {rec.action === 'buy' && rec.code !== 'NAKİT' && <button onClick={() => { setCategory('Tümü'); setTab('market'); }} className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-700">İncele</button>}
                                             {rec.code === 'NAKİT' && <button onClick={() => setShowBasketModal(true)} className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700">Yatırım Yap</button>}
+                                            {rec.action === 'switch' && <button className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700" onClick={() => { /* Switch logic here */ }}>Uygula</button>}
+                                            {/* YENİ REBALANCING BUTONU */}
+                                            {rec.action === 'rebalance' && <button className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700" onClick={rebalancePortfolio}>Otomatik Dengele</button>}
+                                            {rec.action === 'lifecycle' && <button className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700">Stratejiyi Güncelle</button>}
                                         </div>
                                     ))}
-
                                     <h3 className="font-bold text-lg mt-6">En Yüksek Puanlı Fonlar</h3>
                                     {BES_FUNDS.sort((a,b) => calculateAIScore(b, user.age) - calculateAIScore(a, user.age)).slice(0, 3).map((f, i) => ( <div key={f.code} className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition flex flex-col md:flex-row gap-4 items-start"><div className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center text-white font-bold shrink-0 ${i===0?'bg-indigo-600': i===1?'bg-indigo-500':'bg-slate-400'}`}><span className="text-2xl">{calculateAIScore(f, user.age)}</span><span className="text-[10px] opacity-80">PUAN</span></div><div className="flex-1"><div className="flex justify-between items-start"><h4 className="font-bold text-lg">{f.name}</h4><button onClick={() => setSelectedFund(f)} className="text-xs bg-slate-100 px-3 py-1 rounded-full font-bold hover:bg-slate-200">İncele</button></div><div className="flex gap-2 text-xs text-slate-500 mb-2 mt-1"><span>{f.code}</span> • <span>{f.category}</span></div><div className="bg-slate-50 p-3 rounded-lg text-sm text-slate-600"><span className="font-bold text-indigo-600">AI Notu:</span> {f.sharpe > 1.5 ? ' Riskine göre getirisi çok yüksek (Sharpe > 1.5).' : ''} {f.return1Y > 70 ? ' Güçlü momentum yakalamış.' : ''} {f.volatility === 'Düşük' ? ' Güvenli liman özelliği taşıyor.' : ''}</div></div></div> ))}
                                 </div>
@@ -555,25 +1020,92 @@
 
                         {tab === 'simulation' && (
                             <div className="animate-fade-in bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                {/* FIX 6: MEVDUAT KIYASLAMA GRAFİĞİ VE KARTLARI */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <div className="p-4 bg-indigo-50 rounded-xl text-center border border-indigo-100">
+                                        <div className="text-xs text-indigo-600 font-bold mb-1">BES Toplam Getiri</div>
+                                        <div className="font-bold text-2xl text-indigo-700">
+                                            {formatMoney(simulationData[simulationData.length-1]?.tahmini || 0)}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-slate-50 rounded-xl text-center border border-slate-200">
+                                        <div className="text-xs text-slate-600 font-bold mb-1">Mevduat Getirisi</div>
+                                        <div className="font-bold text-2xl text-slate-700">
+                                            {formatMoney(simulationData[simulationData.length-1]?.mevduat || 0)}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-emerald-50 rounded-xl text-center border border-emerald-100">
+                                        <div className="text-xs text-emerald-600 font-bold mb-1">Fark (BES Avantajı)</div>
+                                        <div className="font-bold text-2xl text-emerald-700">
+                                            +{formatMoney((simulationData[simulationData.length-1]?.tahmini || 0) - (simulationData[simulationData.length-1]?.mevduat || 0))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* YENİ: SENARYO & REEL GETİRİ TOGGLE */}
+                                <div className="flex justify-end mb-4">
+                                    <button onClick={() => setShowRealReturn(!showRealReturn)} className={`px-3 py-1 rounded text-xs font-bold border transition ${showRealReturn ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-white border-slate-300 text-slate-500'}`}>
+                                        {showRealReturn ? '✅ Enflasyondan Arındırılmış (Reel)' : '⬜ Nominal Gösterim'}
+                                    </button>
+                                </div>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                                     <div><label className="block text-sm font-bold mb-2">Aylık Katkı: {formatMoney(simMonthly)}</label><input type="range" min="500" max="20000" step="500" value={simMonthly} onChange={e => setSimMonthly(Number(e.target.value))} className="w-full accent-indigo-600"/></div>
-                                    <div><label className="block text-sm font-bold mb-2">Süre: {simYears} Yıl</label><input type="range" min="1" max="40" step="1" value={simYears} onChange={e => setSimYears(Number(e.target.value))} className="w-full accent-indigo-600"/></div>
+                                    <div><label className="block text-sm font-bold mb-2">Süre: {simYears} Yıl (Min: 10 Yıl)</label><input type="range" min="10" max="40" step="1" value={simYears} onChange={e => setSimYears(Number(e.target.value))} className="w-full accent-indigo-600"/></div>
                                 </div>
                                 <div className="h-80 w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <AreaChart data={simulationData}>
-                                            <defs><linearGradient id="colorTahmini" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8}/><stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/></linearGradient></defs>
+                                            <defs>
+                                                <linearGradient id="colorTahmini" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8}/><stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/></linearGradient>
+                                                <linearGradient id="colorMevduat" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#94a3b8" stopOpacity={0.5}/><stop offset="95%" stopColor="#94a3b8" stopOpacity={0}/></linearGradient>
+                                                <linearGradient id="colorBest" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
+                                                <linearGradient id="colorWorst" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/><stop offset="95%" stopColor="#ef4444" stopOpacity={0}/></linearGradient>
+                                            </defs>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                                             <XAxis dataKey="year"/>
                                             <YAxis tickFormatter={v => `${v/1000}k`} />
                                             <Tooltip formatter={v => formatMoney(v)} />
-                                            <Area type="monotone" dataKey="tahmini" stroke="#4f46e5" fill="url(#colorTahmini)" name="Tahmini Birikim (BES)"/>
-                                            <Area type="monotone" dataKey="mevduat" stroke="#ef4444" fill="transparent" strokeDasharray="5 5" name="Sadece Nakit (Eriyen Değer)"/>
+                                            
+                                            {/* Ana Senaryo */}
+                                            <Area type="monotone" dataKey="tahmini" stroke="#4f46e5" fill="url(#colorTahmini)" name="Beklenen (BES)" strokeWidth={3}/>
+                                            
+                                            {/* Alternatif Senaryolar (Daha ince çizgiler) */}
+                                            <Area type="monotone" dataKey="best" stroke="#10b981" fill="transparent" strokeDasharray="3 3" name="İyi Senaryo (Ralli)" strokeWidth={1}/>
+                                            <Area type="monotone" dataKey="worst" stroke="#ef4444" fill="transparent" strokeDasharray="3 3" name="Kötü Senaryo (Kriz)" strokeWidth={1}/>
+                                            <Area type="monotone" dataKey="mevduat" stroke="#94a3b8" fill="url(#colorMevduat)" name="Mevduat (Alternatif)"/>
                                         </AreaChart>
                                     </ResponsiveContainer>
-                                    <div className="mt-4 text-xs text-center text-slate-500">
-                                        <span className="inline-block w-3 h-3 bg-indigo-600 rounded-full mr-1"></span> BES Getirisi
-                                        <span className="inline-block w-3 h-3 bg-red-500 rounded-full ml-4 mr-1"></span> Nakit/Mevduat (Enflasyon Altı)
+                                    <div className="mt-4 text-xs text-center text-slate-500 flex justify-center gap-4">
+                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-indigo-600 rounded-full"></span> Beklenen</span>
+                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-emerald-500 rounded-full"></span> İyi Senaryo</span>
+                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-red-500 rounded-full"></span> Kötü Senaryo</span>
+                                        <span className="flex items-center gap-1"><span className="w-3 h-3 bg-slate-400 rounded-full"></span> Mevduat</span>
+                                    </div>
+                                </div>
+                                
+                                {/* TIMELINE / MILESTONES (YENİ EKLENDİ) */}
+                                <div className="mt-8 border-t pt-6">
+                                    <h4 className="font-bold text-sm mb-4 text-slate-700">Gelecek Yol Haritası</h4>
+                                    <div className="flex justify-between relative">
+                                        <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -z-10"></div>
+                                        
+                                        <div className="text-center bg-white px-2">
+                                            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">3.Yıl</div>
+                                            <div className="text-[10px] text-slate-500">%15 Hakediş<br/>Açılır</div>
+                                        </div>
+                                        <div className="text-center bg-white px-2">
+                                            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">6.Yıl</div>
+                                            <div className="text-[10px] text-slate-500">%35 Hakediş<br/>Açılır</div>
+                                        </div>
+                                        <div className="text-center bg-white px-2">
+                                            <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">10.Yıl</div>
+                                            <div className="text-[10px] text-slate-500">%60 Hakediş<br/>Vergi %10'a düşer</div>
+                                        </div>
+                                        <div className="text-center bg-white px-2">
+                                            <div className="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1">56 Yaş</div>
+                                            <div className="text-[10px] text-slate-500">EMEKLİLİK<br/>%100 Hakediş</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
